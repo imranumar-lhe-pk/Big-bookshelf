@@ -6,17 +6,18 @@ import Banner from "./Components/LandingPage/Banner";
 import Aurthor from "./Components/LandingPage/Author";
 import Button from "./Components/LandingPage/Buttons";
 import Footer from "./Components/LandingPage/Footer";
+import { BookMarkProvider } from './Context/BookMarkContext';
 
 export default function Home() {
   return (
-<Box>
-  <NavBar />
-  <Cards />
-  <Bestsellers />
-  <Banner />
-  <Aurthor />
-  <Button />
-  <Footer />
-</Box>
+    <Box>
+      <NavBar />
+      <Cards />
+      <Bestsellers />
+      <Banner />
+      <Aurthor />
+      <Button />
+      <Footer />
+    </Box>
   );
 }

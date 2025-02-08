@@ -32,7 +32,7 @@ function Cards() {
             transform: 'translateY(-30%) rotate(0deg)', // Center vertically and rotate
           }}
         />
-        <Button sx={{ color: '#F4CE47', padding: '16px 28px', border: '1.5px solid #F4CE47', borderRadius: '16px', m: 2 }}>
+        <Button href='/books' sx={{ color: '#F4CE47', padding: '16px 28px', border: '1.5px solid #F4CE47', borderRadius: '16px', m: 2 }}>
           BROWSE NOW
         </Button>
       </Card>

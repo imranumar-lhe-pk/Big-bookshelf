@@ -4,15 +4,15 @@ import Product from './Header'
 import Sidebar from './Sidebar'
 import Header from './Header'
 import Products from './Products'
-import NavBarr from './NavBarr'
+import NavBar from '../../Components/LandingPage/NavBar'
 import TopBar from './Topbar'
 
 function ProductsPage() {
   return (
    <Box>
-    <NavBarr />
-    <Header />
-    <Box display="flex" flexDirection="column" width="100%" bgcolor={'  '}>
+    <NavBar />
+    
+    <Box display="flex" flexDirection="column" width="100%" bgcolor={'#2A2C2E'}>
       {/* TopBar spans the full width */}
       <TopBar />
       

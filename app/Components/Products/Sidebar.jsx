@@ -2,7 +2,7 @@ import { Box, Typography, List, ListItem, Checkbox, Divider, Slider, FormControl
 
 export default function Sidebar() {
   return (
-    <Box sx={{ width: 240, padding: '16px', borderRadius: '13px', backgroundColor: 'white', m: 5 }}>
+    <Box sx={{ width: 240, padding: '16px', borderRadius: '13px', backgroundColor: 'white',  }}>
       {/* Categories Section */}
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>Categories</Typography>
       <TextField

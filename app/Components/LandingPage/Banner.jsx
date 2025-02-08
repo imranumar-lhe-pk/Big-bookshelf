@@ -6,89 +6,98 @@ function Banner() {
   return (
     <Card
       sx={{
-        width: { xs: '90%', md: '95%' },
-        m: { xs: 2, sm: 5 }, // Responsive margin
+        width: { xs: '95%', md: '90%' }, // Adjust width slightly for smaller screens
+        m: { xs: 2, sm: 5 },
+        ml: { sm: '5%' },
         backgroundColor: '#2A2C2E',
         borderRadius: '16px',
         position: 'relative',
-        p: { xs: 2, sm: 3 }, // Responsive padding
+        p: { xs: 2, sm: 3 },
         display: 'flex',
-        flexDirection: { xs: 'column', md: 'row' }, // Stack vertically on small screens, horizontally on medium and up
+        flexDirection: { xs: 'column', md: 'row' }, // Column for small devices, row for larger
         justifyContent: 'space-between',
         alignItems: 'center',
-        height: { xs: 'auto', md: '40vh' }, // Set a minimum height for the banner
+        height: { xs: 'auto', md: '40vh' }, // Maintain height for large screens but auto for small devices
       }}
     >
       <CardContent
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          alignItems: { xs: 'center', md: 'flex-start' }, // Center on small screens, left-align on medium and up
-          textAlign: { xs: 'center', md: 'left' }, // Center align text on small screens
+          alignItems: { xs: 'center', md: 'flex-start' },
+          textAlign: { xs: 'center', md: 'left' },
+          width: { xs: '100%', md: '50%' }, // Text will take 50% of width on larger screens
         }}
       >
         <Typography
           color='#FFFFFF'
-          fontFamily={'Clash Grotesk Variable'}
-          fontSize={{ xs: '24px', sm: '28px', md: '32px' }} // Responsive font size
+          fontFamily='Clash Grotesk Variable'
+          fontSize={{ xs: '22px', sm: '28px', md: '32px', lg: '36px' }} // Responsive font sizes
           fontWeight={500}
-          letterSpacing={'0.25%'}
-          lineHeight={'1.2'}
-          mb={2} // Margin bottom for spacing
+          letterSpacing='0.25%'
+          lineHeight='1.2'
+          mb={2}
         >
           FIND SOMETHING TO READ
         </Typography>
 
         <Typography
           color='#FFFFFF'
-          width={{ xs: '100%', sm: '80%', md: '60%' }} // Responsive width
-          fontFamily={'Literata'}
-          fontSize={{ xs: '14px', sm: '16px' }} // Responsive font size
+          width={{ xs: '100%', sm: '80%', md: '80%' }}
+          fontFamily='Literata'
+          fontSize={{ xs: '14px', sm: '16px', md: '18px' }} // Responsive font size for small devices
           fontWeight={300}
-          letterSpacing={'0.15%'}
-          lineHeight={'1.5'}
-          mb={2} // Margin bottom for spacing
+          letterSpacing='0.15%'
+          lineHeight='1.5'
+          mb={2}
         >
           Fancy something unusual and unpredictable? Funny or exciting? No problem. Check out the collections we have prepared for you.
         </Typography>
       </CardContent>
 
       <Box 
-        display={'flex'} 
-        justifyContent={'center'} 
-        alignItems={'center'}
-        sx={{ mt: { xs: 2, md: 0 } }} // Margin top on small screens
+        display='flex' 
+        justifyContent='center' 
+        alignItems='center'
+        sx={{ mt: { xs: 2, md: 0 }, width: { xs: '100%', md: '50%' } }} // Adjust width and spacing for responsiveness
       >
         <Grid container justifyContent="center">
-          <Grid item xs={8} sm={6} md={12}>
+          <Grid item xs={10} sm={8} md={6} lg={4}>
             <Card
               sx={{
                 backgroundColor: '#F4CE47',
                 borderRadius: '16px',
-                height: '25vh', // Adjusted height for the button card
-                width:{sm:'20vw', xs:'40vw'},
+                ml:{md:12,sm:0},
+                height: { xs: '20vh', sm: '25vh' }, // Adjust height for small and medium screens
+                width: '100%', // Full width for responsiveness
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
               }}
             >
               <Button
+                href='/books'
                 fullWidth
                 sx={{
                   color: '#2A2C2E',
                   height: '100%',
-                  fontSize: { xs: '12px', sm: '14px' }, // Responsive font size
+                  fontSize: { xs: '12px', sm: '14px', md: '16px' }, // Adjust font size for button
                   fontWeight: 'bold',
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
+                  transition: 'background-color 0.3s ease, transform 0.3s ease', // Smooth hover effect
+                  '&:hover': {
+                    backgroundColor: '#e3b600',
+                    transform: 'scale(1.05)', // Scale effect on hover
+                  },
                 }}
               >
                 <ArrowDownwardIcon
                   sx={{
-                    fontSize: { xs: '24vw', sm: '8vw' }, // Responsive icon size
-                    transform: 'rotate(-45deg)', // Rotate icon slightly
-                    mr: 1, // Margin right for spacing between icon and text
+                    fontSize: { xs: '14vw', sm: '15vw', md: '6vw' }, // Scale icon size depending on screen
+                    transform: 'rotate(-45deg)',
+                    mr: 1,
                   }}
                 />
               </Button>

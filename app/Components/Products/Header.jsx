@@ -2,11 +2,9 @@ import { Grid, Box, Typography, Card, CardMedia, CardContent, CardActions, Butto
 
  function Header() {
   return (
-    <Box display="flex" flexDirection="column" height="20vh">
+    <Box display="flex" flexDirection="column" height="10vh">
       {/* Header Section */}
-      <Box sx={{ backgroundColor: '#F4CE47', padding: '16px', textAlign: 'center',mt:3 }}>
-        <Typography variant="h4" fontWeight="bold">ALL BOOKS</Typography>
-      </Box>
+     
 
      
 

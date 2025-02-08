@@ -1,7 +1,12 @@
 import React from 'react';
 import { Box, Typography, Button } from '@mui/material';
+import { ArrowDropDown } from '@mui/icons-material';
+import { ProductsData } from '../../static/products'; // Import your data
 
 const TopBar = () => {
+  // Use ProductsData directly or set it in the state if needed
+  const results = ProductsData; // Or use state if you fetch or modify data
+
   return (
     <Box 
       display="flex" 
@@ -10,16 +15,14 @@ const TopBar = () => {
       bgcolor="#2A2C2E" // Set the background color
       padding="8px 16px" // Add some padding for better spacing
       color="#FFFFFF" // Ensure text is visible on dark background
+      m={'2%'}
     >
-      <Typography variant="h6">FILTER 120 results</Typography>
+      <Typography variant="h6">FILTER {results.length} results</Typography>
 
-      {/* Replace these with the correct elements from your design */}
-      <Box display="flex" gap="16px">
-        <Button variant="outlined" color="inherit">Reset all</Button>
-        <Button variant="outlined" color="inherit">Option 1</Button>
-        <Button variant="outlined" color="inherit">Option 2</Button>
-        <Button variant="outlined" color="inherit">Option 3</Button>
-        <Button variant="contained" color="inherit" endIcon={<YourDropdownIcon />}>FEATURED</Button>
+      <Box display="flex" gap="1px">
+        <Button variant="outlined" color="inherit" endIcon={<ArrowDropDown />}>
+          FEATURED
+        </Button>
       </Box>
     </Box>
   );
