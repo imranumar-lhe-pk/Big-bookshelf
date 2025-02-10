@@ -9,6 +9,10 @@ import {
   onSnapshot,
   query,
   orderBy,
+  updateDoc,
+  doc,
+  deleteDoc,
+  where,
 } from "firebase/firestore";
 import { getStorage, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -42,4 +46,8 @@ export {
   uploadBytes,
   query,
   orderBy,
+  updateDoc,
+  deleteDoc,
+  doc,
+  where
 };
