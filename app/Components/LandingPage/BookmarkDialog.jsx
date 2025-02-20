@@ -84,7 +84,11 @@ function BookmarkDialog({ open, onClose }) {
               >
                 <CardMedia
                   component="img"
-                  image={item.image}
+                  image={
+                    item.imageBase64
+                      ? `${item.imageBase64}` // Directly use the Base64 image
+                      : "https://via.placeholder.com/150"
+                  }
                   alt={item.title}
                   sx={{
                     height: { xs: 80, sm: 100 },
@@ -92,6 +96,10 @@ function BookmarkDialog({ open, onClose }) {
                     objectFit: "cover",
                     borderRadius: "16px",
                     p: 1,
+                  }}
+                  onError={(e) => {
+                    e.target.src = "https://via.placeholder.com/150";
+                    console.error("Image loading failed, fallback triggered.");
                   }}
                 />
                 <CardContent
@@ -108,7 +116,7 @@ function BookmarkDialog({ open, onClose }) {
                   </Typography>
                   <Typography variant="subtitle1">{item.author}</Typography>
                   <Typography variant="subtitle1" fontWeight={600}>
-                    ${item.priceNew}
+                    Rs{item.price}
                   </Typography>
                 </CardContent>
                 <Box sx={{ display: "flex", alignItems: "center", p: 1 }}>
@@ -155,7 +163,7 @@ function BookmarkDialog({ open, onClose }) {
               Add All In Bag
               <Typography variant="h6" fontSize={"15px"}>
                 {" "}
-                ${totalPrice.toFixed(2)}
+                Rs {totalPrice}
               </Typography>{" "}
               {/* Show total amount */}
             </Button>

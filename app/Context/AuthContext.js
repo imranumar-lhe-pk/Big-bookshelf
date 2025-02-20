@@ -1,23 +1,31 @@
 'use client'
-import { createContext, useContext, useState, useEffect } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth"; // Assuming you are using Firebase
-import { app } from "../firebase/config";
+import { createContext, useEffect, useState, useContext } from "react";
+import { auth, db } from "../firebase/config";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const auth = getAuth(app);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+      if (authUser) {
+        const userRef = doc(db, "users", authUser.uid);
+        const userSnap = await getDoc(userRef);
+        setUser({ uid: authUser.uid, email: authUser.email, ...userSnap.data() });
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [auth]);
+  }, []);
 
-  return <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => useContext(AuthContext);

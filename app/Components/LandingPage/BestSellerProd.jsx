@@ -1,5 +1,7 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { db } from "../../firebase/config";
+import { collection, getDocs } from "firebase/firestore";
 import {
   Grid,
   Card,
@@ -9,107 +11,209 @@ import {
   Button,
   IconButton,
   Box,
+  Skeleton,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { ProductsData } from "../../static/products";
 import { FaRegBookmark } from "react-icons/fa";
-import { useBookmark } from "../../Context/BookMarkContext";
-import ProductActionIcons from "./ProductActionIcons"; // Import the new component
-import { motion } from "framer-motion"; // Import motion
+import ProductActionIcons from "./ProductActionIcons";
+import { motion } from "framer-motion";
+import { setAllBooks, useBookmark } from "../../Context/BookMarkContext";
+import Link from "next/link";
 
 const BestSellerProd = () => {
   const router = useRouter();
   const { addBookmark } = useBookmark();
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const bookSnapshot = await getDocs(collection(db, "books"));
+        const bookList = bookSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setBooks([...bookList]);
+        setAllBooks([...bookList]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleBookmarkClick = (event, product) => {
-    event.stopPropagation(); // Prevent triggering the card click
+    event.stopPropagation();
     addBookmark(product);
   };
 
   return (
     <Box sx={{ p: 3 }}>
       <Grid container spacing={2}>
-        {/* Products Grid */}
         <Grid item xs={12} sm={12} md={12}>
           <Grid container spacing={2}>
-            {ProductsData.map((product, index) => (
-              <React.Fragment key={index}>
-                {index < 7 ? (
-                  <Grid item xs={12} sm={6} md={3} lg={3}>
-                    <motion.div
-                      whileHover={{ scale: 1.05 }} // Scale up on hover
-                      transition={{ type: "spring", stiffness: 300 }} // Animation properties
+            {loading
+              ? Array.from(new Array(7)).map((_, index) => (
+                  <Grid item xs={12} sm={6} md={3} lg={3} key={index}>
+                    <Card
+                      sx={{
+                        height: "100%",
+                        boxShadow: 3,
+                        width: "20vw",
+                        borderRadius: 2,
+                        bgcolor: "white",
+                      }}
                     >
-                      <Card sx={{ height: "100%" }}>
-                        <CardMedia
-                          component="img"
-                          image={product.image}
-                          alt={product.title}
-                          sx={{
-                            height: 330,
-                            width: "100%",
-                            objectFit: "fill",
-                            borderRadius: "16px",
-                            p: 2,
-                          }}
+                      <Skeleton
+                        variant="rectangular"
+                        height={330}
+                        sx={{
+                          borderRadius: "16px",
+                          bgcolor: "grey.300",
+                          p: 2,
+                        }}
+                      />
+                      <CardContent>
+                        <Skeleton
+                          variant="text"
+                          height={30}
+                          width="80%"
+                          sx={{ bgcolor: "grey.300" }}
                         />
-                        <CardContent>
-                          <Typography variant="h6" fontWeight="bold">
-                            {product.title}
-                          </Typography>
-                          <Typography variant="subtitle2" mt={1}>
-                            {product.author}
-                          </Typography>
-                          <Typography variant="body2" mt={1}>
-                            ${product.priceNew}{" "}
-                            <span className="text-gray-400">
-                              {product?.priceOld}
-                            </span>
-                          </Typography>
-                          <Typography variant="body2" position={"relative"}>
-                            <Box mt={1}>
-                              <ProductActionIcons productId={product.id} />
-                            </Box>
-                            <Box>
-                              <IconButton
-                                onClick={(event) =>
-                                  handleBookmarkClick(event, product)
-                                }
-                                sx={{
-                                  position: "absolute",
-                                  bottom: 0,
-                                  right: 0,
-                                  fontSize: { md: "20px", xs: "13px" },
-                                  color: "white",
-                                  backgroundColor: "#2A2C2E",
-                                  "&:hover": {
-                                    backgroundColor: "rgba(0, 0, 0, 0.7)",
-                                  },
-                                }}
-                              >
-                                <FaRegBookmark />
-                              </IconButton>
-                            </Box>
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
+                        <Skeleton
+                          variant="text"
+                          height={20}
+                          width="60%"
+                          sx={{ bgcolor: "grey.300" }}
+                        />
+                        <Skeleton
+                          variant="text"
+                          height={20}
+                          width="50%"
+                          sx={{ bgcolor: "grey.300" }}
+                        />
+                      </CardContent>
+                    </Card>
                   </Grid>
-                ) : null}
+                ))
+              : books.map((book, index) => (
+                  <React.Fragment key={index}>
+                    {index < 7 ? (
+                      <Grid item xs={12} sm={6} md={3} lg={3}>
+                       
+                          <Card
+                            sx={{
+                              height: "100%",
+                              boxShadow: 3,
+                              width: "20vw",
+                              borderRadius: 2,
+                              position: "relative",
+                              transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
+                              "&:hover": {
+                                transform: "scale(1.05)",
+                                boxShadow: 6,
+                              },
+                            }}
+                          >
+                            <CardMedia
+                              component="img"
+                              image={
+                                book.imageBase64 ||
+                                "https://via.placeholder.com/150"
+                              }
+                              alt={book.book}
+                              sx={{
+                                height: 330,
+                                objectFit: "fill",
+                                borderRadius: "16px",
+                                p: 2,
+                              }}
+                              onError={(e) => {
+                                e.target.src =
+                                  "https://via.placeholder.com/150";
+                                console.error(
+                                  "Image loading failed, fallback triggered."
+                                );
+                              }}
+                            />
+                            <CardContent>
+                              <Typography variant="h6" fontWeight="bold">
+                                {book.title}
+                              </Typography>
+                              <Typography variant="subtitle2" mt={1}>
+                                {book.author}
+                              </Typography>
+                              <Typography variant="body2" mt={1}>
+                                ${book.price}{" "}
+                              </Typography>
+                              <Typography variant="body2" position={"relative"}>
+                                <Box mt={1}>
+                                  <ProductActionIcons product={book} />
+                                </Box>
+                                <Box>
+                                  <IconButton
+                                    onClick={(event) =>
+                                      handleBookmarkClick(event, book)
+                                    }
+                                    sx={{
+                                      position: "absolute",
+                                      bottom: 0,
+                                      right: 0,
+                                      fontSize: { md: "20px", xs: "13px" },
+                                      color: "white",
+                                      backgroundColor: "#2A2C2E",
+                                      "&:hover": {
+                                        backgroundColor: "rgba(0, 0, 0, 0.7)",
+                                      },
+                                    }}
+                                  >
+                                    <FaRegBookmark />
+                                  </IconButton>
+                                </Box>
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                       
+                      </Grid>
+                    ) : null}
 
-                {/* See All Button */}
-                {index === 7 ? (
-                  <Grid item xs={12} sm={6} md={3} lg={3}>
-                    <Button
-                      variant="contained"
-                      className="bg-[#F4CE47] transition ease-in-out delay-150 hover:-translate-y hover:scale-105  duration-300 h-[100%] w-[100%] border-r-[16px] flex justify-center items-center text-black font-bold p-2 hover:bg-[#e3b600] text-2xl "
-                    >
-                      SEE ALL
-                    </Button>
-                  </Grid>
-                ) : null}
-              </React.Fragment>
-            ))}
+                    {index === 7 ? (
+                      <Grid item xs={12} sm={6} md={3} lg={3}>
+                        <Link href={"/books"}>
+                          <Button
+                            variant="contained"
+                            sx={{
+                              bgcolor: "#F4CE47",
+                              transition: "ease-in-out 0.3s",
+                              transform: "translateY(0)",
+                              "&:hover": {
+                                bgcolor: "#e3b600",
+                                transform: "translateY(-5px) scale(1.05)",
+                              },
+                              height: "100%",
+                              width: "100%",
+                              borderRight: "16px solid transparent",
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              color: "black",
+                              fontWeight: "bold",
+                              p: 2,
+                              fontSize: "1.5rem",
+                            }}
+                          >
+                            SEE ALL
+                          </Button>
+                        </Link>
+                      </Grid>
+                    ) : null}
+                  </React.Fragment>
+                ))}
           </Grid>
         </Grid>
       </Grid>

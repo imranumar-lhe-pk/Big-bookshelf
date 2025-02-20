@@ -46,7 +46,7 @@ const OrderSummary = ({ total }) => {
           {(checkoutItems || []).map((item, id) => (
             <TableRow key={id}>
               <TableCell>{item.title}</TableCell>
-              <TableCell align="right">${item.priceNew}</TableCell>
+              <TableCell align="right">${item.price}</TableCell>
             </TableRow>
           ))}
         </TableBody>

@@ -85,7 +85,7 @@ const Bestsellers = () => {
       }}
     >
       <Typography variant="h6" color="white" mb={3} fontWeight={'bold'} fontSize={'24px'} ml={1}>
-        Popular Authors
+        POPULAR AUTHORS
       </Typography>
       <Grid container spacing={2}>
         {books.map((book, index) => (

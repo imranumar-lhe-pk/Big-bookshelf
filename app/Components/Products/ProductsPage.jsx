@@ -1,8 +1,6 @@
 import { Box, Slider } from '@mui/material'
 import React from 'react'
-import Product from './Header'
-import Sidebar from './Sidebar'
-import Header from './Header'
+
 import Products from './Products'
 import NavBar from '../../Components/LandingPage/NavBar'
 import TopBar from './Topbar'

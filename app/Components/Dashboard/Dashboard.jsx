@@ -31,10 +31,12 @@ import {
 } from "../../firebase/config";
 
 import { doc, updateDoc } from "firebase/firestore";
+import MyBooks from './MyBooks'
 
 export default function Dashboard() {
   const [books, setBooks] = useState([]);
   const [errors, setErrors] = useState({});
+  const [openMyBooks, setOpenMyBooks] = useState(false); // State for modal
   const [newBook, setNewBook] = useState({
     title: "",
     price: "",
@@ -207,7 +209,7 @@ export default function Dashboard() {
             />
             <Box>
               <Typography variant="h6" fontWeight="bold">
-                Hey, John Doe
+                Hey, Imran
               </Typography>
               <Typography variant="body2" color="textSecondary">
                 Total Ads: {books.length}
@@ -349,9 +351,14 @@ export default function Dashboard() {
       </Grid>
 
       <Grid item xs={12} md={8}>
-        <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
-          All Books
-        </Typography>
+      <Grid item xs={12} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+        <Typography fontWeight={"Bold"} fontSize={"25px"}>Running Ads</Typography>
+        <Button variant="contained" color="primary" onClick={() => setOpenMyBooks(true)}>
+          My Books
+        </Button>
+      </Grid>
+      <MyBooks open={openMyBooks} handleClose={() => setOpenMyBooks(false)} />
+        
 
         <Grid container spacing={3}>
           {books.map((book) => (

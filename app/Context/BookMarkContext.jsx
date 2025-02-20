@@ -16,6 +16,7 @@ export const BookMarkProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState(GetItems());
   const [checkoutItems, setCheckoutItems] = useState([]);
   const [checkoutPrice, setCheckoutPrice] = useState(0);
+  const [allBooks , setAllBooks] = useState()
 
   // Add item to bookmarks
   const addBookmark = (product) => {
@@ -28,15 +29,15 @@ export const BookMarkProvider = ({ children }) => {
   };
 
   //total for bookmark
-  const totalPrice = useMemo(() => {
-    localStorage.setItem("Bookmark", JSON.stringify(bookmarkedItems));
-    return bookmarkedItems.reduce((total, item) => total + item.priceNew, 0);
-  }, [bookmarkedItems]);
-  //total for cart
-  const totalCartPrice = useMemo(() => {
-    localStorage.setItem("Cart", JSON.stringify(cartItems));
-    return cartItems.reduce((total, item) => total + item.priceNew, 0);
-  }, [cartItems]);
+    const totalPrice = useMemo(() => {
+      localStorage.setItem("Bookmark", JSON.stringify(bookmarkedItems));
+      return bookmarkedItems.reduce((total, item) => total + item.price, 0);
+    }, [bookmarkedItems]);
+    //total for cart
+    const totalCartPrice = useMemo(() => {
+      localStorage.setItem("Cart", JSON.stringify(cartItems));
+      return cartItems.reduce((total, item) => total + item.price, 0);
+    }, [cartItems]);
 
   // Add item to cart
   const addCart = (product) => {
@@ -135,6 +136,8 @@ export const BookMarkProvider = ({ children }) => {
         setCheckoutItems,
         checkoutItems,
         checkoutPrice,
+        setAllBooks,
+        allBooks
       }}
     >
       {children}
