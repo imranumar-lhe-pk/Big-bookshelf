@@ -1,4 +1,5 @@
-'use client'
+// contexts/AuthContext.js
+"use client";
 import { createContext, useEffect, useState, useContext } from "react";
 import { auth, db } from "../firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
@@ -14,8 +15,23 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
       if (authUser) {
         const userRef = doc(db, "users", authUser.uid);
-        const userSnap = await getDoc(userRef);
-        setUser({ uid: authUser.uid, email: authUser.email, ...userSnap.data() });
+        try {
+          const userSnap = await getDoc(userRef);
+          setUser({
+            uid: authUser.uid,
+            email: authUser.email,
+            displayName: authUser.displayName || "User",
+            ...(userSnap.exists() ? userSnap.data() : {}), // Only add data if doc exists
+          });
+        } catch (error) {
+          console.error("Error fetching user data:", error.message);
+          // Fallback to basic auth data if Firestore fetch fails
+          setUser({
+            uid: authUser.uid,
+            email: authUser.email,
+            displayName: authUser.displayName || "User",
+          });
+        }
       } else {
         setUser(null);
       }
@@ -25,7 +41,11 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  return <AuthContext.Provider value={{ user, loading }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => useContext(AuthContext);

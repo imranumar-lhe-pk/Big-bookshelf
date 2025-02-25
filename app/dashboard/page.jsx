@@ -1,9 +1,10 @@
 import React from 'react'
 import Dashboard from '../Components/Dashboard/Dashboard'
+import { Box } from '@mui/material'
 
 function page() {
   return (
-    <div><Dashboard /></div>
+    <Box><Dashboard /></Box>
   )
 }
 
