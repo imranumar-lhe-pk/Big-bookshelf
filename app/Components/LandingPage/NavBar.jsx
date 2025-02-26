@@ -13,75 +13,54 @@ import {
   ListItemIcon,
   ListItemText,
   Badge,
-  DialogContent,
   Dialog,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { IoBagCheckOutline } from "react-icons/io5";
 import { FaRegBookmark } from "react-icons/fa";
 import { IoSearchSharp } from "react-icons/io5";
-import CreateAccountDialog from "./CreateAccountDialog";
 import Link from "next/link";
-import { useBookmark } from "../../Context/BookMarkContext";
+import { useBookmark } from "../../Context/BookMarkContext"; // Adjust path
 import BookmarkDialog from "./BookmarkDialog";
 import CartDialog from "./CartDialog";
 import Signup from "../Signup/Signup";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { app } from "../../firebase/config";
+import { useRouter } from "next/navigation";
 
 const NavBar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [isLogedIn, setIsLogedIn] = useState(false);
-  const [animate, setAnimate] = useState(false);
-
-  const [dialogOpen, setDialogOpen] = useState(false);
   const { bookmarkedItems, cartItems } = useBookmark();
-  const [bookmarkDialogOpen, setBookmarkDialogOpen] = useState();
-  const [cartDialogOpen, setCartDialogOpen] = useState();
-
-  const handleLogin = () => {
-    setIsLogedIn(true);
-    setDialogOpen(false);
-  };
+  const [bookmarkDialogOpen, setBookmarkDialogOpen] = useState(false);
+  const [cartDialogOpen, setCartDialogOpen] = useState(false);
+  const [signupDialogOpen, setSignupDialogOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const auth = getAuth(app);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
 
   // Check user authentication state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsLoggedIn(!!user); // If user exists, set true; otherwise, false
+      setIsLoggedIn(!!user); // True if user exists, false otherwise
+      console.log("User logged in status:", !!user); // Debug log
     });
-    return () => unsubscribe(); // Cleanup listener
+    return () => unsubscribe();
   }, []);
 
+  // Animation effect
+  const [animate, setAnimate] = useState(false);
   useEffect(() => {
     setAnimate(true);
   }, []);
 
-  const handleBookmarkDialogOpen = () => {
-    setBookmarkDialogOpen(true);
-  };
-  const handleBookmarkDialogClose = () => {
-    setBookmarkDialogOpen(false);
-  };
-  const handleCartDialogOpen = () => {
-    setCartDialogOpen(true);
-  };
-  const handleCartDialogClose = () => {
-    setCartDialogOpen(false);
-  };
-  const [signupDialogOpen, setSignupDialogOpen] = useState(false);
-
-  const handleSignupDialogOpen = () => {
-    setSignupDialogOpen(true);
-  };
-
-  const handleSignupDialogClose = () => {
-    setSignupDialogOpen(false);
-  };
-  const handleDialogOpen = () => setDialogOpen(true);
-  const handleDialogClose = () => setDialogOpen(false);
+  // Modal handlers
+  const handleBookmarkDialogOpen = () => setBookmarkDialogOpen(true);
+  const handleBookmarkDialogClose = () => setBookmarkDialogOpen(false);
+  const handleCartDialogOpen = () => setCartDialogOpen(true);
+  const handleCartDialogClose = () => setCartDialogOpen(false);
+  const handleSignupDialogOpen = () => setSignupDialogOpen(true);
+  const handleSignupDialogClose = () => setSignupDialogOpen(false);
 
   const toggleDrawer = (open) => (event) => {
     if (
@@ -93,8 +72,13 @@ const NavBar = () => {
     setDrawerOpen(open);
   };
 
-  const toggleSidebar = (open) => () => {
-    setSidebarOpen(open);
+  // Handle Dashboard click with authentication check
+  const handleDashboardClick = () => {
+    if (isLoggedIn) {
+      router.push("/dashboard");
+    } else {
+      setSignupDialogOpen(true); // Open login modal if not logged in
+    }
   };
 
   return (
@@ -160,25 +144,24 @@ const NavBar = () => {
               </Typography>
             </Link>
 
-            <Link href="/dashboard" passHref>
-              <Typography
-                variant="h6"
-                sx={{
-                  textAlign: "center",
-                  display: { xs: "none", sm: "block" },
-                  padding: "6px 12px",
-                  borderRadius: "8px",
-                  transition: "0.3s",
-                  "&:hover": {
-                    backgroundColor: "#F4CE47",
-                    color: "white",
-                    cursor: "pointer",
-                  },
-                }}
-              >
-                Dashboard
-              </Typography>
-            </Link>
+            <Typography
+              variant="h6"
+              sx={{
+                textAlign: "center",
+                display: { xs: "none", sm: "block" },
+                padding: "6px 12px",
+                borderRadius: "8px",
+                transition: "0.3s",
+                "&:hover": {
+                  backgroundColor: "#F4CE47",
+                  color: "white",
+                  cursor: "pointer",
+                },
+              }}
+              onClick={handleDashboardClick} // Use same handler as login for consistency
+            >
+              Dashboard
+            </Typography>
           </Box>
 
           <Box
@@ -214,7 +197,7 @@ const NavBar = () => {
                   color: "white",
                   "&:hover": { backgroundColor: "#B71C1C" },
                 }}
-                onClick={() => signOut(auth)} // Logout Functionality
+                onClick={() => signOut(auth)}
               >
                 Sign Out
               </Button>
@@ -226,7 +209,7 @@ const NavBar = () => {
                   color: "black",
                   "&:hover": { backgroundColor: "#e0b832" },
                 }}
-                onClick={handleSignupDialogOpen} // Open Signup/Login Modal
+                onClick={handleSignupDialogOpen}
               >
                 Login
               </Button>
@@ -237,30 +220,19 @@ const NavBar = () => {
 
       {/* Signup Modal */}
       <Dialog open={signupDialogOpen} onClose={handleSignupDialogClose}>
-        <Signup onClose={handleSignupDialogClose} />
+        <Signup onClose={handleSignupDialogClose} redirectToCheckout={false} />
       </Dialog>
-      <CreateAccountDialog
-        open={dialogOpen}
-        onClose={handleDialogClose}
-        onLoginSuccess={handleLogin}
-      />
 
-      {/* Cart modal */}
+      {/* Cart and Bookmark Modals */}
       <CartDialog open={cartDialogOpen} onClose={handleCartDialogClose} />
-      {/* Bookmark modal */}
-      <BookmarkDialog
-        open={bookmarkDialogOpen}
-        onClose={handleBookmarkDialogClose}
-      />
+      <BookmarkDialog open={bookmarkDialogOpen} onClose={handleBookmarkDialogClose} />
 
       {/* Drawer Menu */}
       <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
         <List>
-          <ListItem button onClick={toggleSidebar(true)}>
-            {" "}
-            {/* Button to open the BookmarkSidebar */}
+          <ListItem button onClick={handleBookmarkDialogOpen}>
             <ListItemIcon>
-              <IconButton onClick={handleBookmarkDialogOpen}>
+              <IconButton>
                 <Badge badgeContent={bookmarkedItems.length} color="error">
                   <FaRegBookmark />
                 </Badge>
@@ -274,7 +246,7 @@ const NavBar = () => {
             </ListItemIcon>
             <ListItemText primary="Search" />
           </ListItem>
-          <ListItem>
+          <ListItem button onClick={handleCartDialogOpen}>
             <ListItemIcon>
               <Badge badgeContent={cartItems.length} color="error">
                 <IoBagCheckOutline />
@@ -282,9 +254,10 @@ const NavBar = () => {
             </ListItemIcon>
             <ListItemText primary="Cart" />
           </ListItem>
-          <ListItem></ListItem>
+          <ListItem />
         </List>
       </Drawer>
+
       <Box
         component="img"
         src="/H1.png"

@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -20,7 +21,7 @@ const Signup = ({ onClose, redirectToCheckout }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [isSignup, setIsSignup] = useState(true);
+  const [isSignup, setIsSignup] = useState(false); // Default to login view
 
   const handleGoogleLogin = async () => {
     try {
@@ -30,6 +31,8 @@ const Signup = ({ onClose, redirectToCheckout }) => {
       onClose();
       if (redirectToCheckout) {
         router.push("/payment");
+      } else {
+        router.push("/dashboard"); // Redirect to dashboard after Google login
       }
     } catch (error) {
       setError(error.message);
@@ -69,6 +72,8 @@ const Signup = ({ onClose, redirectToCheckout }) => {
       onClose();
       if (redirectToCheckout) {
         router.push("/payment");
+      } else {
+        router.push("/dashboard"); // Redirect to dashboard after login
       }
     } catch (error) {
       setError(error.message);
@@ -91,7 +96,13 @@ const Signup = ({ onClose, redirectToCheckout }) => {
           />
         )}
         <TextField label="Email" fullWidth value={email} onChange={(e) => setEmail(e.target.value)} />
-        <TextField label="Password" type="password" fullWidth value={password} onChange={(e) => setPassword(e.target.value)} />
+        <TextField
+          label="Password"
+          type="password"
+          fullWidth
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
         {error && <Typography color="error" fontSize={14}>{error}</Typography>}
         {message && <Typography color="green" fontSize={14}>{message}</Typography>}
@@ -101,18 +112,30 @@ const Signup = ({ onClose, redirectToCheckout }) => {
         </Button>
 
         {!isSignup && (
-          <Button variant="text" sx={{ textTransform: "none", color: "blue" }} onClick={handleForgotPassword}>
+          <Button
+            variant="text"
+            sx={{ textTransform: "none", color: "blue" }}
+            onClick={handleForgotPassword}
+          >
             Forgot Password?
           </Button>
         )}
 
-        <Button variant="contained" sx={{ mt: 1, color: "white", borderColor: "#DB4437" }} onClick={handleGoogleLogin}>
+        <Button
+          variant="contained"
+          sx={{ mt: 1, color: "white", borderColor: "#DB4437" }}
+          onClick={handleGoogleLogin}
+        >
           Sign in with Google
         </Button>
 
         <Typography variant="body2" mt={2}>
-          {isSignup ? "Already have an account?" : "Don't have an account?"}  
-          <Button variant="text" sx={{ textTransform: "none", color: "blue" }} onClick={() => setIsSignup(!isSignup)}>
+          {isSignup ? "Already have an account?" : "Don't have an account?"}
+          <Button
+            variant="text"
+            sx={{ textTransform: "none", color: "blue" }}
+            onClick={() => setIsSignup(!isSignup)}
+          >
             {isSignup ? "Login here" : "Create an account"}
           </Button>
         </Typography>

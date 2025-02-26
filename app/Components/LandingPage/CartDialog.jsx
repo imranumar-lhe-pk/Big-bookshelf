@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import {
   Box,
   Card,
@@ -13,27 +13,39 @@ import {
   Snackbar,
 } from "@mui/material";
 import React, { useState, useMemo } from "react";
-import { useBookmark } from "../../Context/BookMarkContext";
-import { FaTrashAlt } from "react-icons/fa"; 
+import { useBookmark } from "../../Context/BookMarkContext"; // Adjust path
+import { FaTrashAlt } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../../Context/AuthContext";
-import Signup from "../Signup/Signup"; // Import the Signup modal
+import { useAuth } from "../../Context/AuthContext"; // Adjust path
+import Signup from "../Signup/Signup";
 
 function BookmarkDialog({ open, onClose }) {
   const { cartItems, removeCart, totalCartPrice, Checkout } = useBookmark();
-  const { user } = useAuth(); // Get user authentication state
+  const { user } = useAuth();
   const router = useRouter();
   const [successMessage, setSuccessMessage] = useState("");
-  const [showSignup, setShowSignup] = useState(false); // State for signup modal
+  const [showSignup, setShowSignup] = useState(false);
+  const [pendingCheckoutItem, setPendingCheckoutItem] = useState(null);
 
-  const handleCheckout = (item) => {
+  const handleCheckout = async (item) => {
     if (!user) {
-      setShowSignup(true); // Show signup modal if user is not logged in
+      setPendingCheckoutItem(item);
+      setShowSignup(true);
       return;
     }
-    Checkout(item);
-    setSuccessMessage("Order Created!");
-    router.push("/payment");
+
+    await new Promise((resolve) => {
+      Checkout(item);
+      resolve();
+    });
+
+    console.log("Items checked out:", item); // Debug log
+
+    setSuccessMessage("Proceeding to checkout...");
+    const itemsToCheckout = Array.isArray(item) ? item : [item];
+    const itemIds = itemsToCheckout.map((i) => i.id).join(",");
+    console.log("Redirecting to payment with checkoutIds:", itemIds); // Debug log
+    router.push(`/payment?checkoutIds=${itemIds}`);
   };
 
   const handleRemoveItem = (itemId) => {
@@ -66,7 +78,7 @@ function BookmarkDialog({ open, onClose }) {
                     component="img"
                     image={
                       item.imageBase64
-                        ? `${item.imageBase64}` // Directly use the Base64 image
+                        ? `${item.imageBase64}`
                         : "https://via.placeholder.com/150"
                     }
                     alt={item.title}
@@ -96,7 +108,7 @@ function BookmarkDialog({ open, onClose }) {
                     </Typography>
                     <Typography variant="subtitle1">{item.author}</Typography>
                     <Typography variant="subtitle1" fontWeight={600}>
-                      ${item.price}
+                      Rs {item.price}
                     </Typography>
                   </CardContent>
                   <Box sx={{ display: "flex", alignItems: "center", p: 1 }}>
@@ -107,7 +119,10 @@ function BookmarkDialog({ open, onClose }) {
                     >
                       Buy Now
                     </Button>
-                    <IconButton sx={{ color: "#2A2C2E" }} onClick={() => handleRemoveItem(item.id)}>
+                    <IconButton
+                      sx={{ color: "#2A2C2E" }}
+                      onClick={() => handleRemoveItem(item.id)}
+                    >
                       <FaTrashAlt />
                     </IconButton>
                   </Box>
@@ -143,11 +158,19 @@ function BookmarkDialog({ open, onClose }) {
         />
       </Dialog>
 
-      {/* Signup Modal */}
       {showSignup && (
         <Dialog open={showSignup} onClose={() => setShowSignup(false)}>
           <DialogContent>
-            <Signup onClose={() => setShowSignup(false)} redirectToCheckout={true} />
+            <Signup
+              onClose={() => {
+                setShowSignup(false);
+                if (user && pendingCheckoutItem) {
+                  handleCheckout(pendingCheckoutItem); // Retry checkout with stored item
+                }
+                setPendingCheckoutItem(null);
+              }}
+              redirectToCheckout={true}
+            />
           </DialogContent>
         </Dialog>
       )}

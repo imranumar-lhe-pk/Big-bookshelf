@@ -1,4 +1,3 @@
-// contexts/BookMarkContext.js
 "use client";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
@@ -8,6 +7,7 @@ const GetItems = () => {
   const storedItems = localStorage.getItem("Cart");
   return storedItems ? JSON.parse(storedItems) : [];
 };
+
 const GetBookmarkItems = () => {
   const storedItems = localStorage.getItem("Bookmark");
   return storedItems ? JSON.parse(storedItems) : [];
@@ -28,6 +28,12 @@ export const BookMarkProvider = ({ children }) => {
     localStorage.setItem("Cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
+  useEffect(() => {
+    localStorage.setItem("CheckoutItems", JSON.stringify(checkoutItems));
+    localStorage.setItem("CheckoutPrice", checkoutPrice.toString());
+    console.log("CheckoutItems updated in context:", checkoutItems); // Debug log
+  }, [checkoutItems, checkoutPrice]);
+
   const addBookmark = (product) => {
     setBookmarkedItems((prevItems) => {
       if (!prevItems.some((item) => item.id === product.id)) {
@@ -40,7 +46,7 @@ export const BookMarkProvider = ({ children }) => {
   const addCart = (product) => {
     setCartItems((prevItems) => {
       if (!prevItems.some((item) => item.id === product.id)) {
-        return [...prevItems, product];
+        return [...prevItems, { ...product, pdfBase64: product.pdfBase64 || "" }];
       }
       return prevItems;
     });
@@ -79,26 +85,39 @@ export const BookMarkProvider = ({ children }) => {
     const deduction = totalAmount * 0.02;
     const finalAmount = totalAmount + deduction;
 
+    console.log("Checkout called with items:", items); // Debug log
+
+    // Ensure items are preserved before removal
+    const checkoutArray = Array.isArray(items) ? [...items] : [items];
+    setCheckoutItems(checkoutArray); // Set checkoutItems first
+    setCheckoutPrice(finalAmount);
+
+    // Remove items from cart after setting checkoutItems
     if (Array.isArray(items)) {
       items.forEach((item) => removeCart(item.id));
     } else {
       removeCart(items.id);
     }
 
-    setCheckoutItems(items);
-    setCheckoutPrice(finalAmount);
+    console.log("CheckoutItems set to:", checkoutArray); // Debug log
+    console.log("CheckoutPrice set to:", finalAmount); // Debug log
   };
 
   const clearAllCartAndBookmarks = () => {
     setCartItems([]);
     setBookmarkedItems([]);
+    setCheckoutItems([]);
+    setCheckoutPrice(0);
     localStorage.removeItem("Cart");
     localStorage.removeItem("Bookmark");
+    localStorage.removeItem("CheckoutItems");
+    localStorage.removeItem("CheckoutPrice");
   };
 
   const clearItemFromCartOrBookmarks = (product) => {
     setCartItems((prev) => prev.filter((item) => item.id !== product.id));
     setBookmarkedItems((prev) => prev.filter((item) => item.id !== product.id));
+    setCheckoutItems((prev) => prev.filter((item) => item.id !== product.id));
   };
 
   return (

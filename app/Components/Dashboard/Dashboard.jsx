@@ -13,6 +13,7 @@ import {
   Paper,
   Grid,
   Box,
+  CircularProgress,
 } from "@mui/material";
 import {
   Upload as UploadIcon,
@@ -33,7 +34,7 @@ import {
 } from "../../firebase/config";
 import { doc, updateDoc } from "firebase/firestore";
 import MyBooks from "./MyBooks";
-import { useAuth } from "../../Context/AuthContext";
+import { useAuth } from "../../Context/AuthContext"; // Adjust path
 
 export default function Dashboard() {
   const { user, loading } = useAuth();
@@ -85,9 +86,11 @@ export default function Dashboard() {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onloadend = () => {
+        const base64String = reader.result;
+        console.log(`Base64 ${field} (first 50 chars):`, base64String.substring(0, 50) + "..."); // Debug log
         setNewBook((prev) => ({
           ...prev,
-          [field]: reader.result,
+          [field]: base64String,
         }));
       };
     }
@@ -140,8 +143,10 @@ export default function Dashboard() {
         publisher: newBook.publisher,
         author: newBook.author,
       };
-      console.log("Uploading book with data:", bookData);
-      console.log("Authenticated UID from auth:", auth.currentUser?.uid);
+      console.log("Uploading book with data:", {
+        ...bookData,
+        pdfBase64: bookData.pdfBase64 ? bookData.pdfBase64.substring(0, 50) + "..." : null,
+      });
       const docRef = await addDoc(collection(db, "books"), bookData);
       console.log("Book added successfully with ID:", docRef.id);
       resetForm();
@@ -203,7 +208,7 @@ export default function Dashboard() {
       const bookRef = doc(db, "books", id);
       await deleteDoc(bookRef);
     } catch (error) {
-      console.error("Error deleting book:", error);
+      console.error("Error deleting book: ", error);
       setErrors({ general: "Failed to delete book: " + error.message });
     }
   };
@@ -224,7 +229,26 @@ export default function Dashboard() {
     setErrors({ general: "" });
   };
 
-  if (loading) return <Typography>Loading...</Typography>;
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          bgcolor: "#f4f5f7",
+        }}
+      >
+        <CircularProgress size={60} sx={{ color: "#1976d2", mb: 2 }} />
+        <Typography variant="h6" color="textSecondary">
+          Loading Dashboard...
+        </Typography>
+      </Box>
+    );
+  }
+
   if (!user) {
     return (
       <Typography variant="h6" sx={{ textAlign: "center", mt: 4 }}>
@@ -442,7 +466,7 @@ export default function Dashboard() {
                   Author: {book.author}
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
-                  Price: Rs{book.price}
+                  Price: Rs {book.price}
                 </Typography>
                 <Box mt={2}>
                   <Button
