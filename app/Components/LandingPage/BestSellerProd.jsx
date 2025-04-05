@@ -127,6 +127,7 @@ const BestSellerProd = () => {
                                 "https://via.placeholder.com/150"
                               }
                               alt={book.book}
+                              loading="lazy"
                               sx={{
                                 height: 330,
                                 objectFit: "fill",

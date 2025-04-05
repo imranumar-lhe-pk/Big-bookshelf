@@ -457,6 +457,7 @@ export default function Dashboard() {
                 <img
                   src={book.imageBase64}
                   alt={book.title}
+                  loading="lazy"
                   style={{ width: "100%", height: "auto", marginBottom: 10 }}
                 />
                 <Typography variant="h6" fontWeight="bold" gutterBottom>

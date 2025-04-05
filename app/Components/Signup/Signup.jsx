@@ -12,28 +12,25 @@ import {
 } from "firebase/auth";
 import { app } from "../../firebase/config";
 import { TextField, Button, Box, Typography, Paper } from "@mui/material";
+import { useBookmark } from "../../Context/BookMarkContext"; // Adjust path
 
 const Signup = ({ onClose, redirectToCheckout }) => {
   const auth = getAuth(app);
   const router = useRouter();
+  const { cartItems, Checkout } = useBookmark(); // Add useBookmark to call Checkout
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [isSignup, setIsSignup] = useState(false); // Default to login view
+  const [isSignup, setIsSignup] = useState(false);
 
   const handleGoogleLogin = async () => {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       console.log("User Info:", result.user);
-      onClose();
-      if (redirectToCheckout) {
-        router.push("/payment");
-      } else {
-        router.push("/dashboard"); // Redirect to dashboard after Google login
-      }
+      handleRedirectAfterLogin();
     } catch (error) {
       setError(error.message);
     }
@@ -69,14 +66,33 @@ const Signup = ({ onClose, redirectToCheckout }) => {
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
-      onClose();
-      if (redirectToCheckout) {
-        router.push("/payment");
-      } else {
-        router.push("/dashboard"); // Redirect to dashboard after login
-      }
+      handleRedirectAfterLogin();
     } catch (error) {
       setError(error.message);
+    }
+  };
+
+  const handleRedirectAfterLogin = () => {
+    onClose();
+    if (redirectToCheckout) {
+      const checkoutIds = localStorage.getItem("pendingCheckoutIds");
+      if (checkoutIds) {
+        console.log("Login successful, redirecting with checkoutIds:", checkoutIds);
+        // Call Checkout with cart items matching checkoutIds
+        const itemsToCheckout = cartItems.filter((item) =>
+          checkoutIds.split(",").includes(item.id)
+        );
+        if (itemsToCheckout.length > 0) {
+          Checkout(itemsToCheckout);
+        }
+        router.push(`/payment?checkoutIds=${checkoutIds}`);
+        localStorage.removeItem("pendingCheckoutIds"); // Clean up
+      } else {
+        console.log("No pendingCheckoutIds found, redirecting to /payment");
+        router.push("/payment");
+      }
+    } else {
+      router.push("/dashboard");
     }
   };
 

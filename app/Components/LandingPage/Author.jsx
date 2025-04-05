@@ -109,6 +109,7 @@ const Bestsellers = () => {
                   component="img" 
                   src={book.image} 
                   alt={book.title} 
+                  loading='lazy'
                   sx={{ 
                     width: { xs: '40%', sm: '30%' }, 
                     height: 'auto', 

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Cards from "react-credit-cards-2";
 import "react-credit-cards-2/dist/es/styles-compiled.css";
 import {
@@ -15,13 +15,16 @@ import validator from "validator";
 import { useAuth } from "../../Context/AuthContext"; // Adjust path
 import { useBookmark } from "../../Context/BookMarkContext"; // Adjust path
 import { db, collection, addDoc } from "../../firebase/config"; // Adjust path
-import { useSearchParams } from "next/navigation"; // For App Router
+import { useSearchParams } from "next/navigation";
 
 const PaymentMethod = () => {
   const [cardNumber, setCardNumber] = useState("");
   const [cardName, setCardName] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvc, setCvc] = useState("");
+  const [name, setName] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [address, setAddress] = useState("");
   const [focused, setFocused] = useState("");
   const [errors, setErrors] = useState({});
   const [showModal, setShowModal] = useState(false);
@@ -30,6 +33,16 @@ const PaymentMethod = () => {
   const { user } = useAuth();
   const { checkoutItems } = useBookmark();
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const savedName = localStorage.getItem("name") || "";
+    const savedMobile = localStorage.getItem("mobile") || "";
+    const savedAddress = localStorage.getItem("address") || "";
+    setName(savedName);
+    setMobile(savedMobile);
+    setAddress(savedAddress);
+    console.log("PaymentMethod loaded contact info from localStorage:", { savedName, savedMobile, savedAddress });
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
@@ -49,6 +62,9 @@ const PaymentMethod = () => {
     if (!/^\d{3}$/.test(cvc)) {
       newErrors.cvc = "CVC must be 3 digits";
     }
+    if (!name) newErrors.name = "Name is required";
+    if (!mobile) newErrors.mobile = "Mobile is required";
+    if (!address) newErrors.address = "Address is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -88,20 +104,17 @@ const PaymentMethod = () => {
         return;
       }
 
-      const contactInfo = {
-        name: localStorage.getItem("name") || searchParams.get("name") || "",
-        mobile: localStorage.getItem("mobile") || searchParams.get("mobile") || "",
-        address: localStorage.getItem("address") || searchParams.get("address") || "",
-      };
+      const contactInfo = { name, mobile, address };
 
       for (const book of itemsToOrder) {
-        const softCopyUrl = book.type === "Soft Copy" && book.pdfBase64
-          ? book.pdfBase64.startsWith("data:application/pdf;base64,")
-            ? book.pdfBase64
-            : `data:application/pdf;base64,${book.pdfBase64}`
-          : "";
+        const softCopyUrl =
+          book.type === "Soft Copy" && book.pdfBase64
+            ? book.pdfBase64.startsWith("data:application/pdf;base64,")
+              ? book.pdfBase64
+              : `data:application/pdf;base64,${book.pdfBase64}`
+            : "";
 
-        console.log("Saving order with softCopyUrl:", softCopyUrl.substring(0, 50) + "..."); // Debug log
+        console.log("Saving order with softCopyUrl:", softCopyUrl.substring(0, 50) + "...");
 
         const orderData = {
           userId: user.uid,
@@ -117,7 +130,13 @@ const PaymentMethod = () => {
         };
 
         await addDoc(collection(db, "orders"), orderData);
+        console.log("Order saved to Firebase:", orderData);
       }
+
+      localStorage.setItem("name", name);
+      localStorage.setItem("mobile", mobile);
+      localStorage.setItem("address", address);
+      console.log("Saved to localStorage:", { name, mobile, address });
 
       setLoading(false);
       setShowModal(true);
@@ -137,107 +156,111 @@ const PaymentMethod = () => {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 400, margin: "auto", padding: 3 }}>
-      <Typography variant="h6" gutterBottom sx={{ color: "white", textAlign: "center" }}>
-        Enter Card Details
-      </Typography>
+    <Box sx={{ maxWidth: 600, margin: "auto", padding: 3 }}>
+     
 
-      <Cards
-        number={cardNumber}
-        name={cardName}
-        expiry={expiry.replace("/", "")}
-        cvc={cvc}
-        focused={focused}
-      />
-
-      <TextField
-        label="Cardholder Name"
-        value={cardName}
-        onChange={(e) => {
-          const value = e.target.value;
-          if (/^[A-Za-z\s]*$/.test(value)) {
-            setCardName(value);
-          }
-        }}
-        fullWidth
-        sx={textFieldStyle}
-        onFocus={() => setFocused("name")}
-        error={!!errors.cardName}
-        helperText={errors.cardName || ""}
-      />
-
-      <TextField
-        label="Card Number"
-        value={cardNumber}
-        onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, "").slice(0, 16))}
-        fullWidth
-        sx={textFieldStyle}
-        onFocus={() => setFocused("number")}
-        error={!!errors.cardNumber}
-        helperText={errors.cardNumber || ""}
-      />
-
-      <Grid container spacing={2}>
-        <Grid item xs={6}>
-          <TextField
-            label="MM/YY"
-            value={expiry}
-            onChange={(e) => handleExpiryChange(e.target.value)}
-            fullWidth
-            sx={textFieldStyle}
-            onFocus={() => setFocused("expiry")}
-            error={!!errors.expiry}
-            helperText={errors.expiry || ""}
-          />
-        </Grid>
-        <Grid item xs={6}>
-          <TextField
-            label="CVC"
-            value={cvc}
-            onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, 3))}
-            fullWidth
-            sx={textFieldStyle}
-            onFocus={() => setFocused("cvc")}
-            error={!!errors.cvc}
-            helperText={errors.cvc || ""}
-          />
-        </Grid>
-      </Grid>
-
-      {errors.general && (
-        <Typography color="error" sx={{ mt: 2, textAlign: "center" }}>
-          {errors.general}
+      <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+        <Typography variant="h6" gutterBottom sx={{ color: "white", textAlign: "center" }}>
+          Enter Card Details
         </Typography>
-      )}
 
-      <Button
-        type="submit"
-        variant="contained"
-        fullWidth
-        disabled={loading}
-        sx={{ marginTop: 3, bgcolor: "white", color: "black", "&:hover": { bgcolor: "grey.300" } }}
-      >
-        {loading ? <CircularProgress size={24} /> : "Submit Payment"}
-      </Button>
+        <Cards
+          number={cardNumber}
+          name={cardName}
+          expiry={expiry.replace("/", "")}
+          cvc={cvc}
+          focused={focused}
+        />
 
-      <Modal open={showModal} onClose={() => setShowModal(false)}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            p: 4,
-            borderRadius: 2,
+        <TextField
+          label="Cardholder Name"
+          value={cardName}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (/^[A-Za-z\s]*$/.test(value)) {
+              setCardName(value);
+            }
           }}
-        >
-          <Typography variant="h6" textAlign="center">
-            Order Completed!
+          fullWidth
+          sx={textFieldStyle}
+          onFocus={() => setFocused("name")}
+          error={!!errors.cardName}
+          helperText={errors.cardName || ""}
+        />
+
+        <TextField
+          label="Card Number"
+          value={cardNumber}
+          onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, "").slice(0, 16))}
+          fullWidth
+          sx={textFieldStyle}
+          onFocus={() => setFocused("number")}
+          error={!!errors.cardNumber}
+          helperText={errors.cardNumber || ""}
+        />
+
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <TextField
+              label="MM/YY"
+              value={expiry}
+              onChange={(e) => handleExpiryChange(e.target.value)}
+              fullWidth
+              sx={textFieldStyle}
+              onFocus={() => setFocused("expiry")}
+              error={!!errors.expiry}
+              helperText={errors.expiry || ""}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="CVC"
+              value={cvc}
+              onChange={(e) => setCvc(e.target.value.replace(/\D/g, "").slice(0, 3))}
+              fullWidth
+              sx={textFieldStyle}
+              onFocus={() => setFocused("cvc")}
+              error={!!errors.cvc}
+              helperText={errors.cvc || ""}
+            />
+          </Grid>
+        </Grid>
+
+        {errors.general && (
+          <Typography color="error" sx={{ mt: 2, textAlign: "center" }}>
+            {errors.general}
           </Typography>
-        </Box>
-      </Modal>
+        )}
+
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          disabled={loading}
+          sx={{ marginTop: 3, bgcolor: "white", color: "black", "&:hover": { bgcolor: "grey.300" } }}
+        >
+          {loading ? <CircularProgress size={24} /> : "Submit Payment"}
+        </Button>
+
+        <Modal open={showModal} onClose={() => setShowModal(false)}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              bgcolor: "background.paper",
+              boxShadow: 24,
+              p: 4,
+              borderRadius: 2,
+            }}
+          >
+            <Typography variant="h6" textAlign="center">
+              Order Completed!
+            </Typography>
+          </Box>
+        </Modal>
+      </Box>
     </Box>
   );
 };

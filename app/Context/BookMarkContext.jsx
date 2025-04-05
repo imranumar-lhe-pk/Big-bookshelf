@@ -31,7 +31,7 @@ export const BookMarkProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem("CheckoutItems", JSON.stringify(checkoutItems));
     localStorage.setItem("CheckoutPrice", checkoutPrice.toString());
-    console.log("CheckoutItems updated in context:", checkoutItems); // Debug log
+    console.log("CheckoutItems updated in context:", checkoutItems);
   }, [checkoutItems, checkoutPrice]);
 
   const addBookmark = (product) => {
@@ -85,12 +85,13 @@ export const BookMarkProvider = ({ children }) => {
     const deduction = totalAmount * 0.02;
     const finalAmount = totalAmount + deduction;
 
-    console.log("Checkout called with items:", items); // Debug log
-
-    // Ensure items are preserved before removal
+    console.log("Checkout called with items:", items);
     const checkoutArray = Array.isArray(items) ? [...items] : [items];
-    setCheckoutItems(checkoutArray); // Set checkoutItems first
+    setCheckoutItems(checkoutArray); // Set items first
     setCheckoutPrice(finalAmount);
+
+    console.log("CheckoutItems set to:", checkoutArray);
+    console.log("CheckoutPrice set to:", finalAmount);
 
     // Remove items from cart after setting checkoutItems
     if (Array.isArray(items)) {
@@ -98,9 +99,6 @@ export const BookMarkProvider = ({ children }) => {
     } else {
       removeCart(items.id);
     }
-
-    console.log("CheckoutItems set to:", checkoutArray); // Debug log
-    console.log("CheckoutPrice set to:", finalAmount); // Debug log
   };
 
   const clearAllCartAndBookmarks = () => {

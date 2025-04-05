@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -8,48 +8,26 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import NavBarr from "./NavBarr";
 import Footer from "./Footer";
 import OrderSummary from "./OrderSummary";
 import { useAuth } from "../../Context/AuthContext"; // Adjust path
-import { db, doc, setDoc, getDoc } from "../../firebase/config"; // Adjust path
+import { useBookmark } from "../../Context/BookMarkContext"; // Adjust path
+import { db, doc, setDoc } from "../../firebase/config";
 
 const ContactInformation = () => {
   const { user } = useAuth();
+  const { checkoutItems } = useBookmark();
+  const router = useRouter();
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [address, setAddress] = useState("");
   const [error, setError] = useState("");
 
-  // Load existing user data if available
-  useEffect(() => {
-    if (user) {
-      const userRef = doc(db, "users", user.uid);
-      getDoc(userRef).then((docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          setName(data.name || "");
-          setMobile(data.mobile || "");
-          setAddress(data.address || "");
-        }
-      }).catch((err) => {
-        console.error("Error loading user data:", err);
-      });
-    }
-  }, [user]);
-
-  const handleNameChange = (event) => {
-    setName(event.target.value);
-  };
-
-  const handleMobileChange = (event) => {
-    setMobile(event.target.value);
-  };
-
-  const handleAddressChange = (event) => {
-    setAddress(event.target.value);
-  };
+  const handleNameChange = (event) => setName(event.target.value);
+  const handleMobileChange = (event) => setMobile(event.target.value);
+  const handleAddressChange = (event) => setAddress(event.target.value);
 
   const handleContinue = async () => {
     if (!user) {
@@ -62,19 +40,41 @@ const ContactInformation = () => {
       return;
     }
 
+    if (checkoutItems.length === 0) {
+      setError("No items selected for checkout.");
+      return;
+    }
+
     try {
       const userRef = doc(db, "users", user.uid);
-      await setDoc(userRef, {
-        name,
-        mobile,
-        address,
-        email: user.email, // Optional: Save email too
-        updatedAt: new Date().toISOString(),
-      }, { merge: true }); // Merge to avoid overwriting other fields
-      setError(""); // Clear any previous errors
+      await setDoc(
+        userRef,
+        {
+          name,
+          mobile,
+          address,
+          email: user.email,
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+      console.log("Contact info saved to Firebase:", { name, mobile, address });
+
+      localStorage.setItem("name", name);
+      localStorage.setItem("mobile", mobile);
+      localStorage.setItem("address", address);
+
+      const checkoutIds = checkoutItems.map((item) => item.id).join(",");
+      console.log("Redirecting to shipping-method with checkoutIds:", checkoutIds);
+
+      setError("");
+      // Pass name, mobile, and address as query params
+      router.push(
+        `/shipping-method?checkoutIds=${checkoutIds}&name=${encodeURIComponent(name)}&mobile=${encodeURIComponent(mobile)}&address=${encodeURIComponent(address)}`
+      );
     } catch (err) {
       console.error("Error saving to Firebase:", err);
-      setError("Failed to save contact information. Please try again.");
+      setError("Failed to save contact information: " + err.message);
     }
   };
 
@@ -132,22 +132,14 @@ const ContactInformation = () => {
                   "& .MuiInputLabel-root": { color: "#fff" },
                 }}
               />
-              <Link
-                href={{
-                  pathname: "/shipping-method",
-                  query: { name, mobile, address },
-                }}
-                passHref
+              <Button
+                variant="contained"
+                fullWidth
+                sx={{ mt: 2, bgcolor: "gold", color: "#222" }}
+                onClick={handleContinue}
               >
-                <Button
-                  variant="contained"
-                  fullWidth
-                  sx={{ mt: 2, bgcolor: "gold", color: "#222" }}
-                  onClick={handleContinue} // Save to Firebase before redirect
-                >
-                  CONTINUE TO SHIPPING METHOD
-                </Button>
-              </Link>
+                CONTINUE TO PAYMENT METHOD
+              </Button>
             </Box>
           </Grid>
 

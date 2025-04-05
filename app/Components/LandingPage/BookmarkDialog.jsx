@@ -90,6 +90,7 @@ function BookmarkDialog({ open, onClose }) {
                       : "https://via.placeholder.com/150"
                   }
                   alt={item.title}
+                  loading="lazy"
                   sx={{
                     height: { xs: 80, sm: 100 },
                     width: { xs: 80, sm: 100 },

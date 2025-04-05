@@ -23,6 +23,7 @@ function Cards() {
         <Box
           component="img"
           src="/Search.png"
+          loading='lazy'
           sx={{
             position: 'absolute',
             top: '40%',
@@ -36,7 +37,7 @@ function Cards() {
           BROWSE NOW
         </Button>
       </Card>
-      <Box component={'img'} src='/book.png' sx={{ width: { xs: '100%', md: 550 }, height: { xs: 'auto', md: 330 }, mt: 5 }} />
+      <Box component={'img'} src='/book.png' loading='lazy' sx={{ width: { xs: '100%', md: 550 }, height: { xs: 'auto', md: 330 }, mt: 5 }} />
     </Box>
   )
 }

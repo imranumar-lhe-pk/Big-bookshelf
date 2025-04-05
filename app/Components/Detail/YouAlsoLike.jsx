@@ -45,6 +45,7 @@ function YouAlsoLike({ ProductsData, currentId, prodCategory }) {
                         <Card>
                             <CardMedia
                                 component="img"
+                                loading="lazy"
                                 height="140"
                                 image={product?.imageBase64 || "https://via.placeholder.com/150"} // Fallback image
                                 alt={product?.title || "Product Image"}
@@ -72,6 +73,7 @@ function YouAlsoLike({ ProductsData, currentId, prodCategory }) {
                                 <Card>
                                     <CardMedia
                                         component="img"
+                                        loading="lazy"
                                         height="140"
                                         image={product?.imageBase64 || "https://via.placeholder.com/150"} // Fallback image
                                         alt={product?.title || "Product Image"}

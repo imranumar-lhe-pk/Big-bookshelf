@@ -1,5 +1,4 @@
 "use client";
-
 import {
   Box,
   Button,
@@ -13,14 +12,14 @@ import NavBarr from "./NavBarr";
 import OrderSummary from "./OrderSummary";
 import PaymentMethod from "./PaymentMethod";
 import Footer from "./Footer";
-import Link from "next/link";
-
 import { useSearchParams } from "next/navigation";
+
 function ShippingMethod() {
   const searchParams = useSearchParams();
-  let name = searchParams.get("name");
-  let mobile = searchParams.get("mobile");
-  let address = searchParams.get("address");
+  const name = searchParams.get("name") || "Not provided";
+  const mobile = searchParams.get("mobile") || "Not provided";
+  const address = searchParams.get("address") || "Not provided";
+
   return (
     <Box>
       <NavBarr />
@@ -40,20 +39,20 @@ function ShippingMethod() {
                   CONTACT INFORMATION
                 </Typography>
                 <Typography variant="body1" m={2}>
-                  <strong>Name:</strong> {name}
+                  <strong>Name:</strong> {decodeURIComponent(name)}
                 </Typography>
                 <Typography variant="body1" m={2}>
-                  <strong>Mobile:</strong> {mobile}
+                  <strong>Mobile:</strong> {decodeURIComponent(mobile)}
                 </Typography>
                 <Typography variant="body1" m={2}>
-                  <strong>Address:</strong> {address}
+                  <strong>Address:</strong> {decodeURIComponent(address)}
                 </Typography>
               </Box>
               {/* Shipping method selection section */}
-              <Typography variant="h5" sx={{ mb: 2, mt: 4, fontWeight:'bold' }}>
+              <Typography variant="h5" sx={{ mb: 2, mt: 4, fontWeight: "bold" }}>
                 PAYMENT METHOD
               </Typography>
-            <PaymentMethod />
+              <PaymentMethod />
             </Box>
           </Grid>
 

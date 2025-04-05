@@ -1,24 +1,53 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Button, CardMedia } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  CardMedia,
+  Dialog,
+  DialogContent,
+} from "@mui/material";
 import YouAlsoLike from "./YouAlsoLike";
 import Link from "next/link";
 import { useBookmark } from "../../Context/BookMarkContext";
-import { db, doc, getDoc, collection, getDocs, query, where } from "../../firebase/config";
+import {
+  db,
+  doc,
+  getDoc,
+  collection,
+  getDocs,
+  query,
+  where,
+} from "../../firebase/config";
+import { useRouter } from "next/navigation";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import Signup from "../Signup/Signup"; // Adjust the path if needed
 
 export default function ProductDetails() {
   const [product, setProduct] = useState(null);
-  const [productsData, setProductsData] = useState([]); // For storing all products
-  const { addCart } = useBookmark();
+  const [productsData, setProductsData] = useState([]);
+  const { addCart, Checkout } = useBookmark();
+  const router = useRouter();
+
+  const [showSignup, setShowSignup] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsLoggedIn(!!user);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const fetchProductDetails = async (productId) => {
     try {
       const productDocRef = doc(db, "books", productId);
       const productDoc = await getDoc(productDocRef);
       if (productDoc.exists()) {
-        const productData = productDoc.data();
+        const productData = { id: productDoc.id, ...productDoc.data() };
         setProduct(productData);
-
         await fetchAllProducts(productData?.category, productId);
       } else {
         console.log("No such document!");
@@ -28,45 +57,58 @@ export default function ProductDetails() {
     }
   };
 
-  
   const fetchAllProducts = async (category, currentId) => {
-    
     try {
       const productsRef = collection(db, "books");
       const categoryQuery = query(
         productsRef,
         where("category", "==", category)
       );
-  
       const productsSnapshot = await getDocs(categoryQuery);
-      
       if (!productsSnapshot.empty) {
         const allProducts = productsSnapshot.docs.map((doc) => ({
+          id: doc.id,
           ...doc.data(),
-          id: doc.id,  // Attach the Firebase document ID to each product
         }));
-        const filteredProducts = allProducts.filter(product => product.id !== currentId);
-
-        setProductsData(filteredProducts); // Save all products in state
+        const filteredProducts = allProducts.filter(
+          (product) => product.id !== currentId
+        );
+        setProductsData(filteredProducts);
       } else {
-        console.log("No products found for category:", category); // If no products found
+        console.log("No products found for category:", category);
       }
     } catch (error) {
       console.error("Error fetching all products:", error);
     }
   };
-  
 
   useEffect(() => {
-    const productId = window.location.href.split("/").pop(); // Get productId from URL
+    const productId = window.location.href.split("/").pop();
     if (!productId) return;
-
     fetchProductDetails(productId);
   }, []);
 
   const handleAddCartClick = (event) => {
     event.stopPropagation();
     if (product) addCart(product);
+  };
+
+  const handleBuyNowClick = async (event) => {
+    event.stopPropagation();
+
+    if (!isLoggedIn) {
+      localStorage.setItem("pendingCheckoutIds", product?.id);
+      setShowSignup(true);
+      return;
+    }
+
+    if (product) {
+      await new Promise((resolve) => {
+        Checkout(product);
+        setTimeout(resolve, 100);
+      });
+      router.push(`/payment?checkoutIds=${product.id}`);
+    }
   };
 
   return (
@@ -91,7 +133,8 @@ export default function ProductDetails() {
           <Box sx={{ width: { xs: "100%", md: "37%" }, p: 2 }}>
             <CardMedia
               component="img"
-              image={product?.imageBase64 || "https://via.placeholder.com/150"} // Directly use base64 or fallback
+              loading="lazy"
+              image={product?.imageBase64 || "https://via.placeholder.com/150"}
               alt={product?.title || "Product Image"}
               sx={{
                 width: { md: "90%", sm: "80%" },
@@ -131,11 +174,9 @@ export default function ProductDetails() {
             </Typography>
 
             <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
-              <Link href="/payment">
-                <Button variant="contained" color="primary">
-                  Buy Now
-                </Button>
-              </Link>
+              <Button variant="contained" color="primary" onClick={handleBuyNowClick}>
+                Buy Now
+              </Button>
               <Button
                 variant="outlined"
                 sx={{ color: "white", borderColor: "white" }}
@@ -169,12 +210,22 @@ export default function ProductDetails() {
         </Box>
       </Box>
 
-      {/* You Also Like Section */}
       <YouAlsoLike
         ProductsData={productsData}
         currentId={product?.id}
         prodCategory={product?.category}
       />
+
+      {showSignup && (
+        <Dialog open={showSignup} onClose={() => setShowSignup(false)}>
+          <DialogContent>
+            <Signup
+              onClose={() => setShowSignup(false)}
+              redirectToCheckout={true}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </Box>
   );
 }

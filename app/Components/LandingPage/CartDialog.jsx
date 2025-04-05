@@ -25,26 +25,28 @@ function BookmarkDialog({ open, onClose }) {
   const router = useRouter();
   const [successMessage, setSuccessMessage] = useState("");
   const [showSignup, setShowSignup] = useState(false);
-  const [pendingCheckoutItem, setPendingCheckoutItem] = useState(null);
 
   const handleCheckout = async (item) => {
     if (!user) {
-      setPendingCheckoutItem(item);
+      const itemsToCheckout = Array.isArray(item) ? item : [item];
+      const itemIds = itemsToCheckout.map((i) => i.id).join(",");
+      localStorage.setItem("pendingCheckoutIds", itemIds); // Save IDs to localStorage
+      console.log("User not logged in, stored pendingCheckoutIds:", itemIds);
       setShowSignup(true);
       return;
     }
 
+    console.log("User logged in, proceeding with checkout for item:", item);
     await new Promise((resolve) => {
       Checkout(item);
-      resolve();
+      setTimeout(resolve, 100); // Ensure state updates
     });
 
-    console.log("Items checked out:", item); // Debug log
-
+    console.log("Items checked out:", item);
     setSuccessMessage("Proceeding to checkout...");
     const itemsToCheckout = Array.isArray(item) ? item : [item];
     const itemIds = itemsToCheckout.map((i) => i.id).join(",");
-    console.log("Redirecting to payment with checkoutIds:", itemIds); // Debug log
+    console.log("Redirecting to payment with checkoutIds:", itemIds);
     router.push(`/payment?checkoutIds=${itemIds}`);
   };
 
@@ -76,6 +78,7 @@ function BookmarkDialog({ open, onClose }) {
                 >
                   <CardMedia
                     component="img"
+                    loading="lazy"
                     image={
                       item.imageBase64
                         ? `${item.imageBase64}`
@@ -135,12 +138,7 @@ function BookmarkDialog({ open, onClose }) {
               <Button
                 variant="contained"
                 onClick={() => handleCheckout(cartItems)}
-                sx={{
-                  mt: 1,
-                  gap: 1,
-                  bgcolor: "#2A2C2E",
-                  color: "white",
-                }}
+                sx={{ mt: 1, gap: 1, bgcolor: "#2A2C2E", color: "white" }}
               >
                 Buy All
                 <Typography variant="h6" fontSize={"15px"}>
@@ -162,13 +160,7 @@ function BookmarkDialog({ open, onClose }) {
         <Dialog open={showSignup} onClose={() => setShowSignup(false)}>
           <DialogContent>
             <Signup
-              onClose={() => {
-                setShowSignup(false);
-                if (user && pendingCheckoutItem) {
-                  handleCheckout(pendingCheckoutItem); // Retry checkout with stored item
-                }
-                setPendingCheckoutItem(null);
-              }}
+              onClose={() => setShowSignup(false)}
               redirectToCheckout={true}
             />
           </DialogContent>

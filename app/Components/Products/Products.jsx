@@ -110,6 +110,7 @@ export default function Products() {
               >
                 <CardMedia
                   component="img"
+                  loading="lazy"
                   image={book.imageBase64 || "https://via.placeholder.com/150"}
                   alt={book.title}
                   sx={{
