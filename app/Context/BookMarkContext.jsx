@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { db, collection, getDocs } from "../firebase/config"; // Adjust path
 
 const BookMarkContext = createContext();
 
@@ -19,6 +20,23 @@ export const BookMarkProvider = ({ children }) => {
   const [checkoutItems, setCheckoutItems] = useState([]);
   const [checkoutPrice, setCheckoutPrice] = useState(0);
   const [allBooks, setAllBooks] = useState([]);
+
+  // Fetch all books from Firestore on mount
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const booksSnapshot = await getDocs(collection(db, "books")); // Assumes a "books" collection
+        const booksList = booksSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setAllBooks(booksList);
+      } catch (error) {
+        console.error("Error fetching books:", error);
+      }
+    };
+    fetchBooks();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("Bookmark", JSON.stringify(bookmarkedItems));
@@ -87,13 +105,12 @@ export const BookMarkProvider = ({ children }) => {
 
     console.log("Checkout called with items:", items);
     const checkoutArray = Array.isArray(items) ? [...items] : [items];
-    setCheckoutItems(checkoutArray); // Set items first
+    setCheckoutItems(checkoutArray);
     setCheckoutPrice(finalAmount);
 
     console.log("CheckoutItems set to:", checkoutArray);
     console.log("CheckoutPrice set to:", finalAmount);
 
-    // Remove items from cart after setting checkoutItems
     if (Array.isArray(items)) {
       items.forEach((item) => removeCart(item.id));
     } else {
