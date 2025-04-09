@@ -262,11 +262,14 @@ export default function Dashboard() {
       container
       className="min-h-screen"
       spacing={4}
-      sx={{ backgroundColor: "#f4f5f7", p: 3 }}
+      sx={{ backgroundColor: "#f4f5f7", p: 2 }}
     >
+      <Box m={{xs:2}} ml={{xs:3}}>
+
       <NavBar />
+      </Box>
       <Grid item xs={12} md={4}>
-        <Paper elevation={3} sx={{ padding: 4, borderRadius: 2, ml: 4 }}>
+        <Paper elevation={3} sx={{ padding: 4, borderRadius: 2, ml: {sm:4,xs:0} }}>
           <Box display="flex" alignItems="center" gap={2} mb={4}>
             <Avatar sx={{ width: 56, height: 56, bgcolor: "primary.main" }}>
               {user.displayName
@@ -492,7 +495,7 @@ export default function Dashboard() {
         </Grid>
       </Grid>
 
-      <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }}>
+      <Box sx={{ display: "flex", justifyContent: "center", width: "100%" }} mx={{xs:4}}>
         <Footer />
       </Box>
     </Grid>

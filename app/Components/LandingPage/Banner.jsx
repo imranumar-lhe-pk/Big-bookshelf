@@ -6,7 +6,7 @@ function Banner() {
   return (
     <Card
       sx={{
-        width: { xs: '95%', md: '90%' }, // Adjust width slightly for smaller screens
+        width: { xs: '95%', md: '90%' },
         m: { xs: 2, sm: 5 },
         ml: { sm: '5%' },
         backgroundColor: '#2A2C2E',
@@ -14,10 +14,10 @@ function Banner() {
         position: 'relative',
         p: { xs: 2, sm: 3 },
         display: 'flex',
-        flexDirection: { xs: 'column', md: 'row' }, // Column for small devices, row for larger
+        flexDirection: { xs: 'column', md: 'row' },
         justifyContent: 'space-between',
         alignItems: 'center',
-        height: { xs: 'auto', md: '40vh' }, // Maintain height for large screens but auto for small devices
+        height: { xs: 'auto', md: '40vh' },
       }}
     >
       <CardContent
@@ -26,13 +26,13 @@ function Banner() {
           flexDirection: 'column',
           alignItems: { xs: 'center', md: 'flex-start' },
           textAlign: { xs: 'center', md: 'left' },
-          width: { xs: '100%', md: '50%' }, // Text will take 50% of width on larger screens
+          width: { xs: '100%', md: '50%' },
         }}
       >
         <Typography
           color='#FFFFFF'
           fontFamily='Clash Grotesk Variable'
-          fontSize={{ xs: '22px', sm: '28px', md: '32px', lg: '36px' }} // Responsive font sizes
+          fontSize={{ xs: '22px', sm: '28px', md: '32px', lg: '36px' }}
           fontWeight={500}
           letterSpacing='0.25%'
           lineHeight='1.2'
@@ -45,7 +45,7 @@ function Banner() {
           color='#FFFFFF'
           width={{ xs: '100%', sm: '80%', md: '80%' }}
           fontFamily='Literata'
-          fontSize={{ xs: '14px', sm: '16px', md: '18px' }} // Responsive font size for small devices
+          fontSize={{ xs: '14px', sm: '16px', md: '18px' }}
           fontWeight={300}
           letterSpacing='0.15%'
           lineHeight='1.5'
@@ -55,11 +55,11 @@ function Banner() {
         </Typography>
       </CardContent>
 
-      <Box 
-        display='flex' 
-        justifyContent='center' 
+      <Box
+        display='flex'
+        justifyContent='center'
         alignItems='center'
-        sx={{ mt: { xs: 2, md: 0 }, width: { xs: '100%', md: '50%' } }} // Adjust width and spacing for responsiveness
+        sx={{ width: { xs: '100%', md: '50%' } }}
       >
         <Grid container justifyContent="center">
           <Grid item xs={10} sm={8} md={6} lg={4}>
@@ -67,9 +67,9 @@ function Banner() {
               sx={{
                 backgroundColor: '#F4CE47',
                 borderRadius: '16px',
-                ml:{md:12,sm:0},
-                height: { xs: '20vh', sm: '25vh' }, // Adjust height for small and medium screens
-                width: '100%', // Full width for responsiveness
+                ml: { md: 12, sm: 0 },
+                height: { xs: '20vh', sm: '25vh' },
+                width: '100%',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -81,21 +81,21 @@ function Banner() {
                 sx={{
                   color: '#2A2C2E',
                   height: '100%',
-                  fontSize: { xs: '12px', sm: '14px', md: '16px' }, // Adjust font size for button
+                  fontSize: { xs: '12px', sm: '14px', md: '16px' },
                   fontWeight: 'bold',
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  transition: 'background-color 0.3s ease, transform 0.3s ease', // Smooth hover effect
+                  transition: 'background-color 0.3s ease, transform 0.3s ease',
                   '&:hover': {
                     backgroundColor: '#e3b600',
-                    transform: 'scale(1.05)', // Scale effect on hover
+                    transform: 'scale(1.05)',
                   },
                 }}
               >
                 <ArrowDownwardIcon
                   sx={{
-                    fontSize: { xs: '14vw', sm: '15vw', md: '6vw' }, // Scale icon size depending on screen
+                    fontSize: { xs: '14vw', sm: '15vw', md: '6vw' },
                     transform: 'rotate(-45deg)',
                     mr: 1,
                   }}

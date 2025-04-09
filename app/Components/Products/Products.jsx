@@ -70,7 +70,7 @@ export default function Products() {
       {loading ? (
         <Grid container spacing={4} justifyContent="center">
           {[...Array(8)].map((_, index) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+            <Grid item xs={12} sm={6} md={3} lg={3} key={index}>
               <Card sx={{ width: "100%", height: "100%", boxShadow: 3, borderRadius: 2 }}>
                 <Skeleton variant="rectangular" width="80vw" height={330} sx={{ borderRadius: "16px", p: 2 }} animation="wave" />
                 <CardContent sx={{ p: 2 }}>
@@ -93,10 +93,10 @@ export default function Products() {
       ) : (
         <Grid container spacing={4} justifyContent="center">
           {books.map((book) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={book.id}>
+            <Grid item xs={12} sm={6} md={3} lg={3} key={book.id}>
               <Card
                 sx={{
-                  width: "22vw",
+                  // width: "22vw",
                   height: "100%",
                   boxShadow: 3,
                   borderRadius: 2,
@@ -114,7 +114,7 @@ export default function Products() {
                   image={book.imageBase64 || "https://via.placeholder.com/150"}
                   alt={book.title}
                   sx={{
-                    width: "100%",
+                    // width: "100%",
                     height: 330,
                     objectFit: "fill",
                     borderRadius: "16px",

@@ -151,16 +151,25 @@ export default function MyBooks({ open, handleClose }) {
         ) : (
           <Grid container spacing={2}>
             {purchasedBooks.map((book) => (
-              <Grid item xs={12} key={book.id}>
-                <Card variant="outlined" sx={{ p: 2, display: "flex", alignItems: "center" }}>
-                  <Box sx={{ flex: "0 0 auto", mr: 2 }}>
+              <Grid item xs={12} md={6} key={book.id}>
+                <Card
+                  variant="outlined"
+                  sx={{
+                    p: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    height: "100%", // Make sure all cards are the same height
+                    flexDirection: "column", // Align content vertically
+                  }}
+                >
+                  <Box sx={{ flex: "0 0 auto", mb: 2 }}>
                     <img
                       src={book.imageUrl}
                       alt={book.bookName}
                       style={{ width: "100px", height: "auto" }}
                     />
                   </Box>
-                  <Box sx={{ flex: 1 }}>
+                  <Box sx={{ flex: 1, textAlign: "center" }}>
                     <Typography variant="h6" fontWeight="bold">
                       {book.bookName}
                     </Typography>
@@ -172,7 +181,7 @@ export default function MyBooks({ open, handleClose }) {
                     </Typography>
                   </Box>
                   {book.type === "Soft Copy" && (
-                    <Box sx={{ display: "flex", gap: 1 }}>
+                    <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
                       <IconButton
                         color="primary"
                         onClick={() => handleRead(book.softCopyUrl, book.id)}
