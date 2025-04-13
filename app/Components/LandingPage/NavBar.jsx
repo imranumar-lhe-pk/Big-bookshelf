@@ -265,7 +265,10 @@ const NavBar = () => {
                   color: "white",
                   "&:hover": { backgroundColor: "#B71C1C" },
                 }}
-                onClick={() => signOut(auth)}
+                onClick={() => {
+                  signOut(auth);
+                  router.replace("/");
+                }}
               >
                 Sign Out
               </Button>

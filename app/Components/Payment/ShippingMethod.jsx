@@ -7,7 +7,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import NavBarr from "./NavBarr";
 import OrderSummary from "./OrderSummary";
 import PaymentMethod from "./PaymentMethod";
@@ -19,6 +19,15 @@ function ShippingMethod() {
   const name = searchParams.get("name") || "Not provided";
   const mobile = searchParams.get("mobile") || "Not provided";
   const address = searchParams.get("address") || "Not provided";
+
+  const [orderSummaryData, setOrderSummaryData] = useState({
+    finalTotal: 0,
+    bookType: "none",
+  });
+
+  const handleSummaryCalculated = ({ finalTotal, bookType }) => {
+    setOrderSummaryData({ finalTotal, bookType });
+  };
 
   return (
     <Box>
@@ -49,15 +58,21 @@ function ShippingMethod() {
                 </Typography>
               </Box>
               {/* Shipping method selection section */}
-              <Typography variant="h5" sx={{ mb: 2, mt: 4, fontWeight: "bold" }}>
+              <Typography
+                variant="h5"
+                sx={{ mb: 2, mt: 4, fontWeight: "bold" }}
+              >
                 PAYMENT METHOD
               </Typography>
-              <PaymentMethod />
+              <PaymentMethod
+                finalTotal={orderSummaryData.finalTotal}
+                bookType={orderSummaryData.bookType}
+              />
             </Box>
           </Grid>
 
           <Grid item xs={12} md={6}>
-            <OrderSummary />
+            <OrderSummary onSummaryCalculated={handleSummaryCalculated} />
           </Grid>
         </Grid>
       </Container>

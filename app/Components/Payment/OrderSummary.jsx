@@ -8,30 +8,28 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { useBookmark } from "../../Context/BookMarkContext"; // Adjust path
+import { useBookmark } from "../../Context/BookMarkContext";
 import { useSearchParams } from "next/navigation";
 
-const OrderSummary = () => {
+const OrderSummary = ({onSummaryCalculated }) => {
   const { checkoutItems, cartItems } = useBookmark();
   const searchParams = useSearchParams();
   const [itemsToDisplay, setItemsToDisplay] = useState([]);
   const [checkoutPrice, setCheckoutPrice] = useState(0);
 
   useEffect(() => {
-    console.log("OrderSummary - CheckoutItems from context:", checkoutItems);
-    console.log("OrderSummary - CartItems from context:", cartItems);
-    console.log("OrderSummary - SearchParams checkoutIds:", searchParams.get("checkoutIds"));
-
-    // Get checkoutIds from URL or localStorage
-    const checkoutIds = searchParams.get("checkoutIds") || localStorage.getItem("pendingCheckoutIds") || "";
+    const checkoutIds =
+      searchParams.get("checkoutIds") ||
+      localStorage.getItem("pendingCheckoutIds") ||
+      "";
     const idsArray = checkoutIds ? checkoutIds.split(",") : [];
 
-    // Use checkoutItems if available, otherwise fall back to cartItems or localStorage
-    let items = checkoutItems.length > 0
-      ? checkoutItems
-      : cartItems.length > 0
-      ? cartItems
-      : JSON.parse(localStorage.getItem("CheckoutItems")) || [];
+    let items =
+      checkoutItems.length > 0
+        ? checkoutItems
+        : cartItems.length > 0
+        ? cartItems
+        : JSON.parse(localStorage.getItem("CheckoutItems")) || [];
 
     if (idsArray.length > 0) {
       items = items.filter((item) => idsArray.includes(item.id));
@@ -41,16 +39,60 @@ const OrderSummary = () => {
       setItemsToDisplay(items);
       const total = items.reduce((sum, item) => sum + (item.price || 0), 0);
       setCheckoutPrice(total);
-      console.log("OrderSummary - Items to display:", items);
     } else {
       setItemsToDisplay([]);
       setCheckoutPrice(0);
-      console.log("OrderSummary - No items to display");
     }
+
+    // Detect book type
+    const hasHardCopy = items.some(item => item.type?.toLowerCase() === "hard copy");
+    const hasSoftCopy = items.some(item => item.type?.toLowerCase() === "soft copy");
+
+    let bookType = "none";
+    if (hasHardCopy && hasSoftCopy) {
+      bookType = "both";
+    } else if (hasHardCopy) {
+      bookType = "hard";
+    } else if (hasSoftCopy) {
+      bookType = "soft";
+    }
+
+    // Notify parent
+    onSummaryCalculated &&
+      onSummaryCalculated({
+        finalTotal: parseFloat(finalTotal),
+        bookType,
+      });
   }, [checkoutItems, cartItems, searchParams]);
 
-  const platformFee = (checkoutPrice * 0.02).toFixed(2);
-  const finalTotal = (checkoutPrice + parseFloat(platformFee)).toFixed(2);
+  const hardCopyItems = itemsToDisplay.filter(
+    (item) => item.type?.toLowerCase() === "hard copy"
+  );
+  const hasSoftcopy = itemsToDisplay.some(
+    (item) => item.type?.toLowerCase() === "soft copy"
+  );
+
+  const hardCopyCount = hardCopyItems.length;
+
+  let shippingFee = 0;
+  let platformFee = 0;
+
+  if (hasSoftcopy && hardCopyCount > 0) {
+    shippingFee = hardCopyCount * 320;
+    platformFee = 0;
+  } else if (hardCopyCount > 0) {
+    shippingFee = hardCopyCount * 300;
+    platformFee = 0;
+  } else if (hasSoftcopy) {
+    shippingFee = 0;
+    platformFee = (checkoutPrice * 0.02).toFixed(2);
+  }
+
+  const finalTotal = (
+    checkoutPrice +
+    shippingFee +
+    parseFloat(platformFee || 0)
+  ).toFixed(2);
 
   return (
     <Box bgcolor="#333" p={3} borderRadius={2} color="#fff">
@@ -73,7 +115,9 @@ const OrderSummary = () => {
           {itemsToDisplay.length > 0 ? (
             itemsToDisplay.map((item) => (
               <TableRow key={item.id}>
-                <TableCell>{item.title || "Untitled"}</TableCell>
+                <TableCell>
+                  {item.title || "Untitled"} ({item.type})
+                </TableCell>
                 <TableCell align="right">Rs {item.price || "N/A"}</TableCell>
               </TableRow>
             ))
@@ -89,14 +133,20 @@ const OrderSummary = () => {
         <Typography variant="body1" fontWeight={"bold"}>
           Shipping:
         </Typography>
-        <Typography variant="body1">FREE</Typography>
-      </Box>
-      <Box display="flex" justifyContent="space-between" sx={{ mt: 1 }}>
-        <Typography variant="body1" fontWeight={"bold"}>
-          Platform Fee (2%):
+        <Typography variant="body1">
+          {shippingFee > 0 ? `Rs ${shippingFee}` : "FREE"}
         </Typography>
-        <Typography variant="body1">+Rs {platformFee}</Typography>
       </Box>
+
+      {platformFee > 0 && (
+        <Box display="flex" justifyContent="space-between" sx={{ mt: 1 }}>
+          <Typography variant="body1" fontWeight={"bold"}>
+            Platform Fee (2%):
+          </Typography>
+          <Typography variant="body1">+Rs {platformFee}</Typography>
+        </Box>
+      )}
+
       <Box display="flex" justifyContent="space-between" sx={{ mt: 2 }}>
         <Typography variant="h6" fontWeight={"bold"}>
           TOTAL:
