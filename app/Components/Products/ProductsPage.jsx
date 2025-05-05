@@ -3,23 +3,19 @@ import React from 'react'
 
 import Products from './Products'
 import NavBar from '../../Components/LandingPage/NavBar'
-import TopBar from './Topbar'
 
 function ProductsPage() {
   return (
    <Box>
     <NavBar />
     
-    <Box display="flex" flexDirection="column" width="100%" bgcolor={'#2A2C2E'}>
-      {/* TopBar spans the full width */}
-      <TopBar />
-      
+  
       {/* Sidebar and Products are placed below TopBar */}
       <Box display="flex" flexDirection="row" width="100%">
         <Products style={{ flex: '1' }} /> {/* Products take up the remaining space */}
       </Box>
     </Box>
-   </Box>
+  
   )
 }
 

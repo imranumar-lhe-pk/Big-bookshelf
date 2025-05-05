@@ -17,11 +17,11 @@ import { FaRegBookmark } from "react-icons/fa";
 import ProductActionIcons from "./ProductActionIcons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { setAllBooks, useBookmark } from "../../Context/BookMarkContext";
+import {  useBookmark } from "../../Context/BookMarkContext";
 
 const BestSellerProd = () => {
   const router = useRouter();
-  const { addBookmark } = useBookmark();
+  const { addBookmark,setAllBooks } = useBookmark();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -68,7 +68,7 @@ const BestSellerProd = () => {
     };
 
     fetchData();
-  }, []);
+  }, [setAllBooks]);
 
   const renderSkeletons = () => (
     Array.from(new Array(8)).map((_, index) => (
@@ -108,7 +108,7 @@ const BestSellerProd = () => {
           <CardContent>
             <Typography variant="h6" fontWeight="bold">{book.title}</Typography>
             <Typography variant="subtitle2" mt={1}>{book.author}</Typography>
-            <Typography variant="body2" mt={1}>${book.price}</Typography>
+            <Typography variant="body2" mt={1}>Rs.{book.price}</Typography>
             <Box mt={1}>
               <ProductActionIcons product={book} />
             </Box>

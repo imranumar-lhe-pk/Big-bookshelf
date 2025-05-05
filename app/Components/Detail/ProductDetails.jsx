@@ -97,7 +97,9 @@ export default function ProductDetails() {
     event.stopPropagation();
 
     if (!isLoggedIn) {
-      localStorage.setItem("pendingCheckoutIds", product?.id);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("pendingCheckoutIds", product?.id);
+      }
       setShowSignup(true);
       return;
     }
@@ -174,7 +176,11 @@ export default function ProductDetails() {
             </Typography>
 
             <Box sx={{ display: "flex", gap: 1, mt: 2 }}>
-              <Button variant="contained" color="primary" onClick={handleBuyNowClick}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleBuyNowClick}
+              >
                 Buy Now
               </Button>
               <Button

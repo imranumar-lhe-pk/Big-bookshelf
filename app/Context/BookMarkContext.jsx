@@ -4,40 +4,29 @@ import { db, collection, getDocs } from "../firebase/config"; // Adjust path
 
 const BookMarkContext = createContext();
 
-const GetItems = () => {
-  const storedItems = localStorage.getItem("Cart");
-  return storedItems ? JSON.parse(storedItems) : [];
-};
-
-const GetBookmarkItems = () => {
-  const storedItems = localStorage.getItem("Bookmark");
-  return storedItems ? JSON.parse(storedItems) : [];
-};
-
 export const BookMarkProvider = ({ children }) => {
-  const [bookmarkedItems, setBookmarkedItems] = useState(GetBookmarkItems());
-  const [cartItems, setCartItems] = useState(GetItems());
+  const [bookmarkedItems, setBookmarkedItems] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
   const [checkoutItems, setCheckoutItems] = useState([]);
   const [checkoutPrice, setCheckoutPrice] = useState(0);
   const [allBooks, setAllBooks] = useState([]);
 
-  // Fetch all books from Firestore on mount
+  // Load initial values from localStorage (only on client)
   useEffect(() => {
-    const fetchBooks = async () => {
-      try {
-        const booksSnapshot = await getDocs(collection(db, "books")); // Assumes a "books" collection
-        const booksList = booksSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setAllBooks(booksList);
-      } catch (error) {
-        console.error("Error fetching books:", error);
-      }
-    };
-    fetchBooks();
+    if (typeof window !== "undefined") {
+      const storedBookmarks = localStorage.getItem("Bookmark");
+      const storedCart = localStorage.getItem("Cart");
+      const storedCheckoutItems = localStorage.getItem("CheckoutItems");
+      const storedCheckoutPrice = localStorage.getItem("CheckoutPrice");
+
+      if (storedBookmarks) setBookmarkedItems(JSON.parse(storedBookmarks));
+      if (storedCart) setCartItems(JSON.parse(storedCart));
+      if (storedCheckoutItems) setCheckoutItems(JSON.parse(storedCheckoutItems));
+      if (storedCheckoutPrice) setCheckoutPrice(parseFloat(storedCheckoutPrice));
+    }
   }, []);
 
+  // Sync bookmarks and cart to localStorage
   useEffect(() => {
     localStorage.setItem("Bookmark", JSON.stringify(bookmarkedItems));
   }, [bookmarkedItems]);
@@ -51,6 +40,23 @@ export const BookMarkProvider = ({ children }) => {
     localStorage.setItem("CheckoutPrice", checkoutPrice.toString());
     console.log("CheckoutItems updated in context:", checkoutItems);
   }, [checkoutItems, checkoutPrice]);
+
+  // Fetch all books from Firestore on mount
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const booksSnapshot = await getDocs(collection(db, "books"));
+        const booksList = booksSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setAllBooks(booksList);
+      } catch (error) {
+        console.error("Error fetching books:", error);
+      }
+    };
+    fetchBooks();
+  }, []);
 
   const addBookmark = (product) => {
     setBookmarkedItems((prevItems) => {
