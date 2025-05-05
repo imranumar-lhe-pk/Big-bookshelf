@@ -17,11 +17,11 @@ import { FaRegBookmark } from "react-icons/fa";
 import ProductActionIcons from "./ProductActionIcons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {  useBookmark } from "../../Context/BookMarkContext";
+import { useBookmark } from "../../Context/BookMarkContext";
 
 const BestSellerProd = () => {
   const router = useRouter();
-  const { addBookmark,setAllBooks } = useBookmark();
+  const { addBookmark, setAllBooks } = useBookmark();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -70,7 +70,7 @@ const BestSellerProd = () => {
     fetchData();
   }, [setAllBooks]);
 
-  const renderSkeletons = () => (
+  const renderSkeletons = () =>
     Array.from(new Array(8)).map((_, index) => (
       <Grid item xs={12} sm={6} md={3} lg={3} key={index}>
         <Card sx={{ ...cardStyles, width: { sm: "40vw", md: "20vw" } }}>
@@ -82,10 +82,9 @@ const BestSellerProd = () => {
           </CardContent>
         </Card>
       </Grid>
-    ))
-  );
+    ));
 
-  const renderBooks = () => (
+  const renderBooks = () =>
     books.slice(0, 8).map((book, index) => (
       <Grid item xs={12} sm={6} md={3} lg={3} key={book.id}>
         <Card sx={{ ...cardStyles, width: { sm: "40vw", md: "20vw" } }}>
@@ -106,19 +105,27 @@ const BestSellerProd = () => {
             }}
           />
           <CardContent>
-            <Typography variant="h6" fontWeight="bold">{book.title}</Typography>
-            <Typography variant="subtitle2" mt={1}>{book.author}</Typography>
-            <Typography variant="body2" mt={1}>Rs.{book.price}</Typography>
-            <Box mt={1}>
+            <Typography variant="h6" fontWeight="bold">
+              {book.title}
+            </Typography>
+            <Typography variant="subtitle2" mt={1}>
+              {book.author}
+            </Typography>
+            <Typography variant="body2" mt={1}>
+              Rs.{book.price}
+            </Typography>
+            <Box
+              mt={1}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <ProductActionIcons product={book} />
-            </Box>
-            <Box>
               <IconButton
                 onClick={(event) => handleBookmarkClick(event, book)}
                 sx={{
-                  position: "absolute",
-                  bottom: 23,
-                  right: 5,
                   fontSize: { md: "23px", xs: "20px" },
                   color: "white",
                   backgroundColor: "#2A2C2E",
@@ -131,8 +138,7 @@ const BestSellerProd = () => {
           </CardContent>
         </Card>
       </Grid>
-    ))
-  );
+    ));
 
   return (
     <Box sx={{ p: 3 }}>

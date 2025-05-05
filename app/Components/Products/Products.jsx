@@ -91,7 +91,7 @@ export default function Products() {
           No books available
         </Typography>
       ) : (
-        <Grid container spacing={4} justifyContent="center">
+        <Grid container spacing={4} justifyContent="center" sx={{backgroundColor: "#2A2C2E", width:"auto", mt:2, ml:1,pb:2}}>
           {books.map((book) => (
             <Grid item xs={12} sm={6} md={3} lg={3} key={book.id}>
               <Card
@@ -100,6 +100,7 @@ export default function Products() {
                   height: "100%",
                   boxShadow: 3,
                   borderRadius: 2,
+                  mr:2,
                   position: "relative",
                   transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out",
                   "&:hover": {
